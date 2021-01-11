@@ -1,3 +1,16 @@
 <resources>
     <string name="app_name">StegoPay BETA</string>
+    <string name="homeText">Home</string>
+    <string name="my_activity">My activity</string>
+    <string name="view_all">View all</string>
+    <string name="add_card_button">Add card</string>
+    <string name="view_cards_button">View cards</string>
+    <string name="add_card_headline">Add card</string>
+    <string name="cards_headline">Cards</string>
+    <string name="card_details_text">Card Details</string>
+    <string name="expiration_date_text">Expiration Date</string>
+    <string name="my_profile_text">My Profile</string>
+    <string name="first_name_text">First name</string>
+    <string name="last_name_text">Last name</string>
+    <string name="email_address_text">Email address</string>
 </resources>

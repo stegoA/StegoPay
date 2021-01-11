@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/background"
+    >
+
+        <FrameLayout
+            android:id="@+id/frameLayout"
+            android:layout_width="match_parent"
+            android:layout_height="180dp">
+
+            <!-- Top rectangle -->
+            <View
+                android:id="@+id/rectangle_1"
+                android:layout_width="match_parent"
+                android:layout_height="131dp"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentTop="true"
+                android:background="@drawable/top_rectangle"
+                android:layout_gravity="top|start"/>
+
+            <!-- Bottom curved rectangle -->
+            <View
+                android:id="@+id/rectangle_2"
+                android:layout_width="match_parent"
+                android:layout_height="90dp"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentTop="true"
+                android:layout_marginTop="85dp"
+                android:background="@drawable/bottom_rounded_rectangle" />
+
+            <View
+                android:id="@+id/ellipse_3"
+                android:layout_width="42dp"
+                android:layout_height="42dp"
+                android:layout_alignParentLeft="true"
+                android:layout_marginLeft="350dp"
+                android:layout_alignParentTop="true"
+                android:layout_marginTop="10dp"
+                android:background="@drawable/profile_picture_ellipse"
+                />
+
+
+            <!-- Home TextView -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/homeText"
+                android:textAppearance="@style/homeStyle"
+                android:layout_marginLeft="15dp"
+                android:layout_marginTop="15dp"
+                android:layout_alignParentLeft="true"
+                android:gravity="center_horizontal|top"
+                />
+
+            <!-- Hello_user TextView-->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Hello, John!"
+                android:textAppearance="@style/hello_user"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentTop="true"
+                android:layout_marginLeft="15dp"
+                android:layout_marginTop="71dp"
+                 />
+
+            <!-- Ellipse2 -->
+            <View
+                android:id="@+id/ellipse_2"
+                android:layout_width="84dp"
+                android:layout_height="84dp"
+                android:layout_alignParentLeft="true"
+                android:layout_marginLeft="350dp"
+                android:layout_alignParentTop="true"
+                android:layout_marginTop="62dp"
+                android:background="@drawable/ellipse_2"
+                />
+
+            <!-- Ellipse1-->
+            <View
+                android:id="@+id/ellipse_1"
+                android:layout_width="137dp"
+                android:layout_height="137dp"
+                android:layout_alignParentLeft="true"
+                android:layout_marginLeft="280dp"
+                android:layout_alignParentTop="true"
+                android:layout_marginTop="89dp"
+                android:background="@drawable/ellipse_1"
+                />
+        </FrameLayout>
+
+
+        <!-- Add card Button-->
+
+        <android.widget.Button
+            android:layout_below="@+id/frameLayout"
+            android:id="@+id/addCardButton"
+            android:layout_width="82dp"
+            android:layout_height="78dp"
+            android:layout_marginTop="25dp"
+            android:layout_marginLeft="25dp"
+            android:background="@drawable/imagebutton_bg"
+            android:drawableTop="@drawable/ic_credit_card"
+            android:padding="10dp"
+            android:text="@string/add_card_button"
+            android:textAllCaps="false"
+            android:gravity="center"
+            android:textAppearance="@style/add_card_button"
+            />
+
+
+        <!-- View cards Button-->
+
+        <android.widget.Button
+            android:layout_below="@+id/frameLayout"
+            android:layout_toRightOf="@+id/addCardButton"
+            android:id="@+id/viewCardsButton"
+            android:layout_width="82dp"
+            android:layout_height="78dp"
+            android:layout_marginTop="25dp"
+            android:layout_marginLeft="25dp"
+            android:background="@drawable/imagebutton_bg"
+            android:padding="10dp"
+            android:drawableTop="@drawable/ic_eye"
+            android:text="@string/view_cards_button"
+            android:textAllCaps="false"
+            android:textAppearance="@style/view_cards_button"
+            android:gravity="center"
+            />
+
+
+
+    <!-- My activity TextView-->
+    <TextView
+        android:id="@+id/my_activity"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_marginLeft="30dp"
+        android:layout_below="@+id/addCardButton"
+        android:layout_marginTop="25dp"
+        android:text="@string/my_activity"
+        android:textAppearance="@style/my_activity"
+        android:gravity="center_horizontal|top"
+        />
+
+
+    <!-- View all TextView -->
+    <TextView
+        android:id="@+id/view_all"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_toRightOf="@+id/my_activity"
+        android:layout_marginLeft="315dp"
+        android:layout_marginTop="313dp"
+        android:text="@string/view_all"
+        android:textAppearance="@style/view_all"
+        android:gravity="center_horizontal|top"
+
+        />
+
+
+    <!-- Transactions view -->
+
+    <View
+        android:id="@+id/rectangle_5"
+        android:layout_below="@+id/my_activity"
+        android:layout_width="match_parent"
+        android:layout_height="295dp"
+        android:layout_marginLeft="25dp"
+        android:layout_marginRight="25dp"
+        android:layout_marginTop="10dp"
+        android:background="@drawable/my_activity_view">
+
+    </View>
+
+    <!-- Transactions listview-->
+
+    <ListView
+        android:id="@+id/activityListView"
+        android:layout_below="@+id/my_activity"
+        android:layout_marginTop="10dp"
+        android:layout_width="match_parent"
+        android:layout_marginLeft="25dp"
+        android:layout_marginRight="25dp"
+        android:layout_height="295dp" />
+
+
+
+</RelativeLayout>

@@ -11,4 +11,5 @@
     <color name="secondary">#fa4454 </color>
     <color name="gradient_purple">#6441A5</color>
     <color name="gradient_black">#2A0845</color>
+    <color name="background">#F5F5F7</color>
 </resources>
