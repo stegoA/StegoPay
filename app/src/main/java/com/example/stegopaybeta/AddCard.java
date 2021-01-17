@@ -119,7 +119,7 @@ public class AddCard extends AppCompatActivity {
     //boolean to check if a valid image is selected
     boolean valid_image_selected;
 
-    //Values to initialize timer varibles to calculate execution times (Preprocessing and mapping)
+    //Values to initialize timer variables to calculate execution times (Preprocessing and mapping)
     long starttime_preprocessing = 0;
     long endtime_preprocessing = 0;
 
