@@ -87,21 +87,43 @@
             android:background="@drawable/cc_form_bg"
             />
 
+
+        <ImageView
+            android:id="@+id/visaCardImageView"
+            android:layout_marginTop="140dp"
+            android:layout_width="45dp"
+            android:layout_height="50dp"
+            android:layout_gravity="center|top"
+            android:scaleType="fitCenter"
+            />
+
         <LinearLayout
             android:layout_width="331dp"
             android:layout_height="400dp"
             android:orientation="vertical"
             android:layout_gravity="center">
 
+            <ImageView
+                android:id="@+id/masterCardImageView"
+                android:layout_marginTop="20dp"
+                android:layout_width="90dp"
+                android:layout_height="50dp"
+                android:layout_gravity="center"
+                android:scaleType="fitCenter"
+                />
+
+
             <!-- CC Number EditText-->
             <EditText
+               android:id="@+id/ccnEditText"
                android:inputType="number"
                android:layout_width="305dp"
                android:layout_height="39dp"
                android:layout_gravity="center"
                android:textAlignment="center"
-               android:layout_marginTop="75dp"
+               android:layout_marginTop="15dp"
                android:hint="Credit card number"
+                android:maxLength="20"
                android:background="@drawable/rounded_edittext_bg"
                />
 
@@ -112,39 +134,63 @@
 
             <!-- Expiration date EditText-->
             <EditText
-                android:inputType="date"
+                android:id="@+id/expDateEditText"
+                android:inputType="number"
                 android:layout_width="113dp"
                 android:layout_height="39dp"
                 android:textAlignment="center"
                 android:layout_marginLeft="40dp"
-                android:layout_marginTop="45dp"
-                android:hint="MM/YYYY"
+                android:layout_marginTop="25dp"
+                android:hint="MM/YY"
+                android:maxLength="5"
                 android:background="@drawable/rounded_edittext_bg_2"
                 />
 
 
             <!-- CVV EditText-->
             <EditText
+                android:id="@+id/cvvEditText"
                 android:inputType="number"
                 android:layout_width="113dp"
                 android:layout_height="39dp"
                 android:textAlignment="center"
                 android:layout_marginLeft="25dp"
-                android:layout_marginTop="45dp"
+                android:layout_marginTop="25dp"
                 android:hint="CVV"
+                android:maxLength="3"
                 android:background="@drawable/rounded_edittext_bg_2"
                 />
 
         </LinearLayout>
 
-            <!-- Cover image selection button-->
 
+            <EditText
+                android:id="@+id/cardNickNameEditText"
+                android:layout_width="230dp"
+                android:layout_height="39dp"
+                android:layout_gravity="center"
+                android:background="@drawable/rounded_edittext_bg"
+                android:hint="Nickname"
+                android:textAlignment="center"
+                android:inputType="text"
+                />
+
+            <TextView
+                android:id="@+id/selectedImageNameTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginTop="30dp"
+                />
+
+
+            <!-- Cover image selection button-->
             <Button
+                android:id="@+id/selectCoverImageButton"
                 android:layout_gravity="center"
                 android:layout_width="200dp"
                 android:layout_height="55dp"
                 android:text="Select cover image"
-                android:layout_marginTop="45dp"
                 android:backgroundTint="@color/gradient_purple"
                 />
 
@@ -153,12 +199,14 @@
 
         <!-- Done button-->
         <Button
+            android:id="@+id/addCardButton"
             android:layout_gravity="center|bottom"
             android:layout_width="174dp"
             android:layout_height="55dp"
-            android:text="Done"
+            android:text="@string/add_card_button"
             android:backgroundTint="@color/gradient_purple"
             android:elevation="4dp"
+            android:layout_marginBottom="25dp"
             />
 
 

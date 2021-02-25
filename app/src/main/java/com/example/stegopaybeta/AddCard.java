@@ -1,18 +1,13 @@
 package com.example.stegopaybeta;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-
 import android.Manifest;
 import android.app.AlertDialog;
-import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
@@ -20,145 +15,122 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.provider.OpenableColumns;
+import android.text.Editable;
+import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.util.Base64;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
-import net.amygdalum.stringsearchalgorithms.search.StringFinder;
-import net.amygdalum.stringsearchalgorithms.search.StringMatch;
-import net.amygdalum.stringsearchalgorithms.search.chars.AhoCorasick;
-import net.amygdalum.stringsearchalgorithms.search.chars.Horspool;
-import net.amygdalum.util.io.CharProvider;
-import net.amygdalum.util.io.StringCharProvider;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
-import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.DataOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
-import java.io.ObjectOutputStream;
-import java.io.OutputStream;
-import java.io.PrintWriter;
-import java.io.UnsupportedEncodingException;
-import java.math.BigInteger;
-import java.net.MalformedURLException;
-import java.net.Socket;
-import java.net.URL;
-import java.nio.ByteBuffer;
-import java.nio.CharBuffer;
-import java.nio.charset.StandardCharsets;
-import java.security.InvalidAlgorithmParameterException;
-import java.security.InvalidKeyException;
-import java.security.Key;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.NoSuchProviderException;
-import java.security.UnrecoverableEntryException;
-import java.security.UnrecoverableKeyException;
-import java.security.cert.CertificateException;
-import java.text.NumberFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.List;
-import java.util.Scanner;
-import java.util.concurrent.TimeUnit;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
-import javax.crypto.BadPaddingException;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.NoSuchPaddingException;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 
-import static java.util.Arrays.asList;
-import static net.amygdalum.stringsearchalgorithms.search.MatchOption.LONGEST_MATCH;
-import static net.amygdalum.stringsearchalgorithms.search.MatchOption.NON_OVERLAP;
+import static com.example.stegopaybeta.CreditCardUtils.getCardType;
+import static com.example.stegopaybeta.Home.JWT_TOKEN;
+import static com.example.stegopaybeta.Home.SHARED_PREFS;
+import static com.example.stegopaybeta.Home.getUnsafeOkHttpClient;
+import static com.example.stegopaybeta.Home.getUserIDFromToken;
 
 public class AddCard extends AppCompatActivity {
 
-    //gallery request code
+    SharedPreferences sharedPreferences;
+
+    DataBaseHelper db;
+
+    // Gallery request code
     private static final int GALLERY_REQUEST_CODE = 123;
 
-    //to store the cover image selected
+    // Storage permission code
+    private int STORAGE_PERMISSION_CODE = 1;
+
+    // Object declaration
+    AddCard addCardObj;
+    Steganography stegoObj;
+    CreditCardUtils creditCardUtilsObj;
+
+    // To store the cover image selected
     Bitmap coverImage;
 
-    //to store the mapping key generated
+    // To store the image data
+    Uri imageData;
+
+    // To store the mapping key generated
     String mappingKey;
 
     // Views
-    Button encodeButton;
-    EditText ccnEditText, expDateEditText, cvvEditText, amountEditText;
-    ImageView imageView;
+    Button selectCoverImageButton, addCardButton;
+    EditText ccnEditText, expDateEditText, cvvEditText, cardNickNameEditText;
+    TextView selectedImageNameTextView;
+    ImageView masterCardImageView, visaCardImageView;
 
-    //to store the timestamp generated
-    String timestamp;
-
-    //to store the encrypted details (credit card number + expiry date + cvv + amount + timestamp)
-    byte[] encryptedText;
-
-    //Encryption, decryption, Add card objects
-    Encryption encryption;
-    Decryption decryption;
-    AddCard obj;
-
-    //steganography object
-    Steganography steganographyObj = new Steganography();
-
-    //storage permission code
-    private int STORAGE_PERMISSION_CODE = 1;
-
-    //Progress dialog to be displayed when mapping and preprocessing is going on
+    // ProgressDialog to be displayed when mapping and pre-processing has started
     ProgressDialog progressDialog_preprocessing;
     ProgressDialog progressDialog_mapping;
 
-    //boolean to check if a valid image is selected
+    // Boolean variable to check if a valid cover image has been selected
     boolean valid_image_selected;
 
-    //Values to initialize timer varibles to calculate execution times (Preprocessing and mapping)
-    long starttime_preprocessing = 0;
-    long endtime_preprocessing = 0;
+    // Boolean variable for credit card form validation
+    boolean isDelete;
 
-    long startTime_Mapping = 0;
-    long endTime_Mapping = 0;
 
-    //Handler for getting the mapping key from the background thread for mapping
+    // Handler for getting the mapping key from the background thread for mapping
     Handler myHandler;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.add_card);
+        setContentView(R.layout.add_card_final);
 
-        //Instantiating encryption, decryption, and addcard objects.
-        encryption = new Encryption();
-        decryption = new Decryption();
-        obj = new AddCard();
-
-        //Instantiating progress dialog objects
-        progressDialog_preprocessing = new ProgressDialog(this);
-        progressDialog_mapping = new ProgressDialog(this);
-
-        //Setting valid_image_selected to false by default
-        valid_image_selected = false;
+        // Objects instantiation
+        addCardObj = new AddCard();
+        stegoObj = new Steganography();
+        creditCardUtilsObj = new CreditCardUtils();
 
 
-        // Initializing views
+         // Initializing views
         ccnEditText = (EditText) findViewById(R.id.ccnEditText);
         expDateEditText = (EditText) findViewById(R.id.expDateEditText);
         cvvEditText = (EditText) findViewById(R.id.cvvEditText);
-        amountEditText = (EditText) findViewById(R.id.amountEditText);
-        imageView = (ImageView) findViewById(R.id.imageView);
-        encodeButton = (Button) findViewById(R.id.encodeButton);
+        selectCoverImageButton = (Button) findViewById(R.id.selectCoverImageButton);
+        addCardButton = (Button) findViewById(R.id.addCardButton);
+        selectedImageNameTextView = (TextView) findViewById(R.id.selectedImageNameTextView);
+        masterCardImageView = (ImageView) findViewById(R.id.masterCardImageView);
+        visaCardImageView = (ImageView) findViewById(R.id.visaCardImageView);
+        cardNickNameEditText = (EditText) findViewById(R.id.cardNickNameEditText);
 
-        //Setting progress bar properties
+        // Instantiating progress dialog objects
+        progressDialog_preprocessing = new ProgressDialog(this);
+        progressDialog_mapping = new ProgressDialog(this);
+
+        // Setting valid_image_selected to false by default
+        valid_image_selected = false;
+
+        // Setting progress bar properties
         progressDialog_preprocessing.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-        progressDialog_preprocessing.setTitle("Preprocessing");
-        progressDialog_preprocessing.setMessage("Please wait while the image is being processed, This operation may take a while");
+        progressDialog_preprocessing.setTitle("Pre-processing");
+        progressDialog_preprocessing.setMessage("Please wait while the image is being processed. This operation may take a while.");
         progressDialog_preprocessing.setIndeterminate(true);
         progressDialog_preprocessing.setCanceledOnTouchOutside(false);
 
@@ -167,51 +139,187 @@ public class AddCard extends AppCompatActivity {
         progressDialog_mapping.setIndeterminate(true);
         progressDialog_mapping.setCancelable(false);
 
-        //On click listener for encode button
-        encodeButton.setOnClickListener(new View.OnClickListener() {
+        // Credit card form validation (credit card number edit text)
+        ccnEditText.addTextChangedListener(new TextWatcher() {
             @Override
-            public void onClick(View v) {
-                //If a image is selected, and the image is stego pay ready
-                if (valid_image_selected) {
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
 
-                    System.out.println("Image is StegoPay Ready");
-                    System.out.println("Before converting ciphertext to binary: " + Base64.encodeToString(encryptedText, Base64.DEFAULT) + " with length: " + encryptedText.length);
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                if (before==0) {
+                    isDelete = false;
+                }
 
-                    //Converting encrypted byte array to binary
-                    String encryptedCCDetailsBinaryString = byteConvertToBinary(encryptedText);
+                else {
+                    isDelete = true;
+                }
+            }
 
-                    System.out.println("CCDetailsBinary : " + encryptedCCDetailsBinaryString);
-                    System.out.println("Number of Bits : " + encryptedCCDetailsBinaryString.length());
+            @Override
+            public void afterTextChanged(Editable s) {
+                String sourceText = s.toString();
 
-                    //Showing the progress bar for mapping
-                    progressDialog_mapping.show();
+                int length = sourceText.length();
 
-                    //Starting to map, with single pattern matching algorithm, done in the background thread
-                    new Thread(new mapping_background(encryptedCCDetailsBinaryString)).start();
-                } else {
-                    System.out.println("Image is not StegoPay Ready");
-                    //Alert dialog to inform the user, that a image isnt selected
-                    new AlertDialog.Builder(AddCard.this)
-                            .setTitle("Image Not Selected")
-                            .setMessage("A valid cover image isn't selected yet.")
-                            .setPositiveButton("Select Image", new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    //to go to gallery to select an image
-                                    selectCoverImageButtonOnClick(null);
-                                }
-                            })
-                            .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                }
-                            }).show();
+                StringBuilder stringBuilder = new StringBuilder();
+
+                stringBuilder.append(sourceText);
+
+
+                if(length >= 2 && masterCardImageView!=null && visaCardImageView != null) {
+                    int cardType = getCardType(sourceText.trim());
+
+                    switch (cardType) {
+                        case 1:
+                            visaCardImageView.setImageDrawable(getResources().getDrawable(R.drawable.ic_visa, getApplicationContext().getTheme()));
+                            break;
+                        case 2:
+                            masterCardImageView.setImageDrawable(getResources().getDrawable(R.drawable.ic_mastercard, getApplicationContext().getTheme()));
+                            break;
+                    }
+
+                }
+
+                else {
+                    visaCardImageView.setImageResource(android.R.color.transparent);
+                    masterCardImageView.setImageResource(android.R.color.transparent);
+                }
+
+                if (length > 0 && length % 5 == 0) {
+
+                    if (isDelete) {
+                        stringBuilder.deleteCharAt(length - 1);
+                    }
+
+                    else {
+                        stringBuilder.insert(length - 1, " ");
+                    }
+
+                    ccnEditText.setText(stringBuilder);
+
+                    ccnEditText.setSelection(ccnEditText.getText().length());
+
+
+                }
+            }
+        });
+
+        // Credit card form validation (expiration date edit text)
+        expDateEditText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+                //Log.d("TAG", "onTextChanged: " + before);
+
+
+                if (before==0) {
+                    isDelete = false;
+
+                }
+
+                else {
+                    isDelete = true;
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                String source = s.toString();
+                int length = source.length();
+
+                StringBuilder stringBuilder = new StringBuilder();
+                stringBuilder.append(source);
+
+                if (length == 2) {
+                    if (isDelete) {
+                        stringBuilder.deleteCharAt(length - 1);
+                    } else {
+                        stringBuilder.append("/");
+                    }
+                    expDateEditText.setText(stringBuilder);
+                    expDateEditText.setSelection(expDateEditText.getText().length());
                 }
 
             }
         });
 
-        //Handler to handler returned message object from the background thread created for mapping
+
+
+
+        selectCoverImageButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                selectCoverImageButtonOnClick();
+            }
+        });
+
+
+        addCardButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                try {
+                    addCardButtonOnClick();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+
+
+        // Has to be created already (User USER_ID table)
+        // Sample creation
+        db = new DataBaseHelper(this);
+
+//        String tokenFromSharedPrefs = getTokenFromSharedPrefs();
+//
+//        String userIDFromToken = getUserIDFromToken(tokenFromSharedPrefs);
+
+
+
+
+
+
+    }
+
+    public String getTokenFromSharedPrefs() {
+
+        sharedPreferences = getSharedPreferences(SHARED_PREFS, MODE_PRIVATE);
+
+        String fromSharedPrefs = sharedPreferences.getString(JWT_TOKEN, "");
+
+        System.out.println("The token I got from sharedPrefs is: " + fromSharedPrefs);
+
+        return fromSharedPrefs;
+
+    }
+
+    public void selectCoverImageButtonOnClick() {
+
+        // If storage permission is not provided, then get storage permission
+        if (ContextCompat.checkSelfPermission(AddCard.this,
+                Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                 requestStoragePermission();
+        }
+
+        // Intent to go to gallery activity
+        Intent intent = new Intent();
+        intent.setType("image/*");
+        intent.setAction(Intent.ACTION_GET_CONTENT);
+        startActivityForResult(Intent.createChooser(intent, "Pick an image"), GALLERY_REQUEST_CODE);
+
+    }
+
+
+
+    public void addCardButtonOnClick() throws InterruptedException {
+
+        //Handler to handle returned message object from the background thread created for mapping
         myHandler = new Handler() {
             @Override
             public void handleMessage(@NonNull Message msg) {
@@ -230,93 +338,298 @@ public class AddCard extends AppCompatActivity {
                 String[] mappings = mappingKey.split(";");
                 System.out.println("Number of mappings : " + mappings.length);
 
-                //Printing execution time
-                long durationInMillis_mapping = TimeUnit.NANOSECONDS.toMillis((endTime_Mapping - startTime_Mapping));
-                System.out.println("Mapping in millis : " + durationInMillis_mapping);
+                createCard(mappingKey);
 
             }
         };
 
-    }
-
-
-    //Converting a byte array to binary string
-    public String byteConvertToBinary(byte[] input) {
-        String binaryString = "";
-
-        for (byte b : input) {
-            String s1 = String.format("%8s", Integer.toBinaryString(b & 0xFF)).replace(' ', '0');
-            binaryString += s1;
+        if(ccnEditText.getText().toString().trim().replaceAll("\\s", "").length() != 16) {
+            ccnEditText.setError("Enter your credit card number.");
+            ccnEditText.requestFocus();
         }
 
+        if(expDateEditText.getText().toString().trim().length() != 5) {
+            expDateEditText.setError("Enter the expiry date.");
+            expDateEditText.requestFocus();
+        }
+
+        if(cvvEditText.getText().toString().trim().length() != 3) {
+            cvvEditText.setError("Enter the CVV.");
+            cvvEditText.requestFocus();
+        }
+
+        if(cardNickNameEditText.getText().toString().trim().length() == 0) {
+            cardNickNameEditText.setError("Give your card a nickname.");
+            cardNickNameEditText.requestFocus();
+        }
+
+        // Check if an image is selected and is StegoPay ready
+        if (valid_image_selected && ccnEditText.getText().toString().trim().replaceAll("\\s", "").length() == 16 && expDateEditText.getText().toString().trim().length() == 5 && cvvEditText.getText().toString().trim().length() == 3 && cardNickNameEditText.getText().toString().trim().length() > 0) {
+
+            // Get card details entered by the user
+            String ccDetails = getCardData();
+
+            System.out.println("Image is StegoPay Ready");
+
+            // Converting ccDetails to a binary string
+            String ccDetailsBinaryString = stringConvertToBinary(ccDetails);
+
+            System.out.println("CCDetailsBinary : " + ccDetailsBinaryString);
+            System.out.println("Number of Bits : " + ccDetailsBinaryString.length());
+
+            // Showing the progress bar for mapping
+            progressDialog_mapping.show();
+
+            // Starting to map, with single pattern matching algorithm, done in the background thread
+            Thread thread1 = new Thread(new mapping_background(ccDetailsBinaryString));
+            thread1.start();
+            thread1.join();
+
+            // new Thread(new mapping_background(ccDetailsBinaryString)).start();
+
+        } else {
+            //Alert dialog to inform the user, that a image isnt selected
+            new AlertDialog.Builder(AddCard.this)
+                    .setTitle("Fill the form!")
+                    .setMessage("You have not completed the form yet.")
+                    .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                        }
+                    }).show();
+        }
+
+
+    }
+
+    public void createCard(String mappingKey) {
+
+        String ccDetails = getCardData();
+
+        String last4Digits = ccDetails.substring(12, 16);
+        String nickName = cardNickNameEditText.getText().toString();
+
+        byte[] coverImageBytes = convertBitmapToByteArray();
+        String coverImageEncoded = Base64.encodeToString(coverImageBytes, Base64.DEFAULT);
+
+      //  System.out.println("img:" + coverImageEncoded);
+        System.out.println(last4Digits + " " + " " + nickName);
+
+        Card card = new Card(nickName, coverImageEncoded, mappingKey, stegoObj.check_image_validity, last4Digits);
+
+        String token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MDJmYTk2OTAwNjE5ZjU2MzhmMDVlZTciLCJpYXQiOjE2MTM3MzY2NjR9.eZBq_r2T2ek5kI3zc_jIudoIoGCxMP2PNOgZcpzDAqM";
+
+        String finalJWT = "Bearer " + token;
+
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl("https://10.0.2.2:3443/")
+                .addConverterFactory(GsonConverterFactory.create())
+                .client(getUnsafeOkHttpClient().build())
+                .build();
+
+        StegoPayApi stegoPayApi = retrofit.create(StegoPayApi.class);
+
+        Call<Card> call = stegoPayApi.createCard(finalJWT, card);
+
+        String userIDFromToken = getUserIDFromToken(token);
+
+
+        call.enqueue(new Callback<Card>() {
+            @Override
+            public void onResponse(Call<Card> call, Response<Card> response) {
+                if (!response.isSuccessful()) {
+                    System.out.println("HTTP Code: " + response.code() + " " + response.message());
+                    return;
+                }
+
+                Card cardResponse = response.body();
+
+                String hashMap1String = convertHashMapToString(cardResponse.getHashMap_1());
+                String hashMap2String = convertHashMapToString(stegoObj.valid_pixels_in_binary);
+
+                db.addCard(userIDFromToken, cardResponse.getCardID(), cardResponse.getNickName(), cardResponse.getImage(), hashMap1String, hashMap2String, cardResponse.getLast4Digits());
+
+                System.out.println("Should be done.");
+
+            }
+
+
+
+            @Override
+            public void onFailure(Call<Card> call, Throwable t) {
+                Toast.makeText(getApplicationContext(), t.getMessage(), Toast.LENGTH_LONG).show();
+                System.out.println(t.getMessage());
+            }
+        });
+
+
+    }
+
+    //Converting a hashmap to string
+    public String convertHashMapToString(HashMap toConvert){
+        String converted = "";
+        Iterator hmIterator = toConvert.entrySet().iterator();
+
+        while(hmIterator.hasNext()){
+            Map.Entry mapElement = (Map.Entry)hmIterator.next();
+            converted += mapElement.getKey()+":"+mapElement.getValue()+";";
+        }
+        return converted;
+    }
+
+    public byte[] convertBitmapToByteArray() {
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        coverImage.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOutputStream);
+        byte[] byteArray = byteArrayOutputStream.toByteArray();
+
+        return byteArray;
+    }
+
+    // A method that gets the card details entered by the user
+    public String getCardData() {
+        String space = " ";
+
+        // Get card details entered by the user
+        String creditCardNumber = ccnEditText.getText().toString().replaceAll("\\s", "");
+        String expDate = expDateEditText.getText().toString();
+        String cvv = cvvEditText.getText().toString();
+
+        // Storing details in a single string for mapping
+        String ccDetails = creditCardNumber + space + expDate + space + cvv;
+
+        return ccDetails;
+    }
+
+    // A method that converts a string to a binary string
+    public String stringConvertToBinary (String input) {
+        String binaryString = "";
+
+        int length = input.length();
+
+        for (int i = 0; i < length; i++) {
+            //ASCII
+            int val = Integer.valueOf(input.charAt(i));
+
+            String temp = Integer.toBinaryString(val);
+
+            temp = String.format("%8s", temp).replace(' ', '0');
+            binaryString += temp;
+
+        }
         return binaryString;
     }
 
-    //on click of button to generate timestamp
-    public void generateTimestamp(View view) {
-        //Generating time stamp of the format dd-MM-yyyy-hh-mm-ss
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd-MM-yyyy-hh-mm-ss");
+    //Runnable to execute mapping operation
+    private class mapping_background implements Runnable {
 
-        //Storing timestamp
-        timestamp = simpleDateFormat.format(new Date());
-        System.out.println("Timestamp: " + timestamp);
-    }
+        private String ccDetailsBinary;
 
-    //on click of encrypt button
-    public void encryptButtonOnClick(View view) throws NoSuchPaddingException, BadPaddingException, InvalidAlgorithmParameterException, NoSuchAlgorithmException, IllegalBlockSizeException, IOException, NoSuchProviderException, InvalidKeyException, UnrecoverableEntryException, CertificateException, KeyStoreException {
-
-        String space = " ";
-
-        //Get credit card details entered by the user
-        String creditCardNumber = ccnEditText.getText().toString();
-        String expDate = expDateEditText.getText().toString();
-        String CVV = cvvEditText.getText().toString();
-        String amount = amountEditText.getText().toString();
-
-        //Store all the details as a single string to encrypt
-        String ccDetails = creditCardNumber + space + CVV + space + expDate + space + amount + space + timestamp;
-
-        System.out.println("The plaintext is: " + ccDetails + " with length: " + ccDetails.length());
-
-        //Encrypt credit card details, returns a byte array
-        encryptedText = encryption.encrypt(ccDetails);
-
-        Toast.makeText(AddCard.this, "Encryption successful!", Toast.LENGTH_SHORT).show();
-
-        //Printing the entire encrypted result with Base64 encoding
-        System.out.println("Encrypted result (ciphertext + authTag): " + Base64.encodeToString(encryption.getEncryptedResult(), Base64.DEFAULT) + " with length: " + encryption.getEncryptedResult().length);
-        //Printing the cipher text part of encrypted result
-        System.out.println("Ciphertext: " + Base64.encodeToString(encryptedText, Base64.DEFAULT) + " with length: " + encryptedText.length);
-        //Printing the authentication tag
-        System.out.println("Authentication tag: " + Base64.encodeToString(encryption.getAuthTag(), Base64.DEFAULT) + " with length: " + encryption.getAuthTag().length);
-
-    }
-
-    //OnClick of button to select cover image
-    public void selectCoverImageButtonOnClick(View view) {
-
-        //If storage permission isnt provided, then get storage permission
-        if (ContextCompat.checkSelfPermission(AddCard.this,
-                Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
-            Toast.makeText(AddCard.this, "You have already granted this permission!",
-                    Toast.LENGTH_SHORT).show();
-        } else {
-            requestStoragePermission();
+        //Default constructor to get encryted credit card details in binary
+        mapping_background(String encryptedCCDetailsBinary) {
+            this.ccDetailsBinary = encryptedCCDetailsBinary;
         }
 
-        //Intent to go to gallery activity
-        Intent intent = new Intent();
-        intent.setType("image/*");
-        intent.setAction(Intent.ACTION_GET_CONTENT);
-        startActivityForResult(Intent.createChooser(intent, "Pick an image"), GALLERY_REQUEST_CODE);
+        //Method to be executed in the background thread
+        @Override
+        public void run() {
+            //to store the mapping key
+            String mapping_key;
 
+            //Start mapping, and get the mapping key
+            mapping_key = stegoObj.single_pattern_mapping(ccDetailsBinary);
+
+            //Creating a message instance
+            Message msg = Message.obtain();
+            //Putting the string into the object field of the message
+            msg.obj = mapping_key;
+            //Setting the target to send the result to (Handler)
+            msg.setTarget(myHandler);
+            //Sending the mapping key to the handler(which will run on the main thread)
+            msg.sendToTarget();
+        }
     }
 
-    //On click of button to send data to the server
-    public void sendButtonOnClick(View view) {
-        //Executing sendData AsyncTask
-        sendData sendData = new sendData();
-        sendData.execute();
+    // Preprocessing AsyncTask
+    private class preprocessing extends AsyncTask<Bitmap, Void, Boolean> {
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            //Show progress dialog before executing the background thread
+            progressDialog_preprocessing.show();
+        }
+
+        @Override
+        protected Boolean doInBackground(Bitmap... bitmaps) {
+            //Set image for steganographyObj
+            stegoObj.setImage(bitmaps[0]);
+
+            //Start Preprocessing
+            stegoObj.preProcessing2();
+
+            //If the image selected is StegoPay ready
+            if (stegoObj.check_image_validity()) {
+                //Set coverImage to the selected image
+                coverImage = bitmaps[0];
+
+                //Set valid image selected boolean to true
+                valid_image_selected = true;
+
+                //Return true
+                return true;
+            } else {
+                //Set image to null
+                stegoObj.setImage(null);
+                //Set valid image selected boolean to false
+                valid_image_selected = false;
+                //Return false
+                return false;
+            }
+        }
+
+        @Override
+        protected void onPostExecute(Boolean aBoolean) {
+            super.onPostExecute(aBoolean);
+            //Dismissing the progress dialog
+            progressDialog_preprocessing.dismiss();
+
+
+            //If image selected was stegoPay ready
+            if (aBoolean == true) {
+                //Set TextView to selected image's name
+
+                Cursor returnCursor =
+                        getContentResolver().query(imageData, null, null, null, null);
+                /*
+                 * Get the column indexes of the data in the Cursor,
+                 * move to the first row in the Cursor, get the data,
+                 * and display it.
+                 */
+                int nameIndex = returnCursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
+                int sizeIndex = returnCursor.getColumnIndex(OpenableColumns.SIZE);
+                returnCursor.moveToFirst();
+
+                selectedImageNameTextView.setText(returnCursor.getString(nameIndex));
+
+
+            } else {
+                //Display a dialog to inform the user, and allow him to select another image
+                new AlertDialog.Builder(AddCard.this)
+                        .setTitle("Invalid Image")
+                        .setMessage("The image selected is not StegoPay ready, try selecting an image with more colors.")
+                        .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                selectCoverImageButtonOnClick();
+                            }
+                        })
+                        .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                            }
+                        }).show();
+            }
+        }
     }
 
 
@@ -329,14 +642,15 @@ public class AddCard extends AppCompatActivity {
             Bitmap temp = null;
             try {
                 //Get image uri
-                Uri imageData = data.getData();
+                 imageData = data.getData();
+
                 //Convert to bitmap
                 InputStream imageStream = getContentResolver().openInputStream(imageData);
                 temp = BitmapFactory.decodeStream(imageStream);
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
             }
-            //Execute AsyncTask for preprocessing the image
+            //Execute AsyncTask for pre-processing the image
             new preprocessing().execute(temp);
         }
     }
@@ -379,220 +693,8 @@ public class AddCard extends AppCompatActivity {
         }
     }
 
-    //Send Data AsyncTask
-    class sendData extends AsyncTask<Void, Void, Void> {
-
-        @Override
-        protected Void doInBackground(Void... voids) {
-
-            //Server IP
-            String IP = "10.0.2.2";
-
-            //Server port number
-            int serverPortNumber = 9999;
-
-            try {
-                //Establishing connection
-                Socket socket = new Socket(IP, serverPortNumber);
-
-                //Converting cover image to a byte array
-                ByteArrayOutputStream stream = new ByteArrayOutputStream();
-                coverImage.compress(Bitmap.CompressFormat.PNG, 100, stream);
-                byte[] byteArray = stream.toByteArray();
-
-                //Sending the cover image, mapping key, IV, and authentication tag to the server
-                OutputStream socketOutputStream = socket.getOutputStream();
-                DataOutputStream dataOutputStream = new DataOutputStream(socketOutputStream);
-                dataOutputStream.writeInt(byteArray.length);
-                dataOutputStream.write(byteArray, 0, byteArray.length);
-                dataOutputStream.flush();
-
-                dataOutputStream.writeUTF(mappingKey);
-                dataOutputStream.flush();
-
-                dataOutputStream.writeInt(encryption.getIV().length);
-                dataOutputStream.write(encryption.getIV(), 0, encryption.getIV().length);
-                dataOutputStream.flush();
-
-                dataOutputStream.writeInt(encryption.getAuthTag().length);
-                dataOutputStream.write(encryption.getAuthTag(), 0, encryption.getAuthTag().length);
-                dataOutputStream.flush();
-
-                //Closing the output streams and the socket
-                dataOutputStream.close();
-                socketOutputStream.close();
-                socket.close();
-
-
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-
-            return null;
-        }
-    }
-
-    //Preprocessing AsyncTask
-    private class preprocessing extends AsyncTask<Bitmap, Void, Boolean> {
-
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-            //Show progress dialog before executing the background thread
-            progressDialog_preprocessing.show();
-        }
-
-        @Override
-        protected Boolean doInBackground(Bitmap... bitmaps) {
-            //Set image for steganographyObj
-            steganographyObj.setImage(bitmaps[0]);
-
-            starttime_preprocessing = System.nanoTime();
-            //Start Preprocessing
-            steganographyObj.preProcessing2();
-            endtime_preprocessing = System.nanoTime();
-
-            //If the image selected is StegoPay ready
-            if (steganographyObj.check_image_validity()) {
-                //Set coverImage to the selected image
-                coverImage = bitmaps[0];
-
-                //Set valid image selected boolean to true
-                valid_image_selected = true;
-
-                //Return true
-                return true;
-            } else {
-                //Set image to null
-                steganographyObj.setImage(null);
-                //Set valid image selected boolean to false
-                valid_image_selected = false;
-                //Return false
-                return false;
-            }
-        }
-
-        @Override
-        protected void onPostExecute(Boolean aBoolean) {
-            super.onPostExecute(aBoolean);
-            //Dismissing the progress dialog
-            progressDialog_preprocessing.dismiss();
-
-            //Displaying preprocessing execution time
-            long durationInMillis_preprocessing = TimeUnit.NANOSECONDS.toMillis((endtime_preprocessing - starttime_preprocessing));
-            System.out.println("Pre processing time : " + durationInMillis_preprocessing);
-
-            //If image selected was stegoPay ready
-            if (aBoolean == true) {
-                //Set image view to image selected
-                imageView.setImageBitmap(coverImage);
-            } else {
-                //Set image view to null (no picture)
-                imageView.setImageBitmap(null);
-                //Display a dialog to inform the user, and allow him to select another image
-                new AlertDialog.Builder(AddCard.this)
-                        .setTitle("Image Invalid")
-                        .setMessage("The image selected isn't stegoPay ready, try selecting a picture with more colors")
-                        .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                selectCoverImageButtonOnClick(null);
-                            }
-                        })
-                        .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                            }
-                        }).show();
-            }
-        }
-    }
-
-    //Runnable to execute mapping operation
-    private class mapping_background implements Runnable {
-
-        private String encryptedCCDetailsBinary;
-
-        //Default constructor to get encryted credit card details in binary
-        mapping_background(String encryptedCCDetailsBinary) {
-            this.encryptedCCDetailsBinary = encryptedCCDetailsBinary;
-        }
-
-        //Method to be executed in the background thread
-        @Override
-        public void run() {
-            //to store the mapping key
-            String mapping_key;
-
-            startTime_Mapping = System.nanoTime();
-            //Start mapping, and get the mapping key
-            mapping_key = steganographyObj.single_pattern_mapping(encryptedCCDetailsBinary);
-            endTime_Mapping = System.nanoTime();
-
-            //Creating a message instance
-            Message msg = Message.obtain();
-            //Putting the string into the object field of the message
-            msg.obj = mapping_key;
-            //Setting the target to send the result to (Handler)
-            msg.setTarget(myHandler);
-            //Sending the mapping key to the handler(which will run on the main thread)
-            msg.sendToTarget();
-        }
-    }
-
-
-/* Method unused
-    public String getDetailsInBinary(String encryptedCCDetails) {
-        String encryptedCCDetailsBinary = StringconvertToBinary(encryptedCCDetails);
-        return encryptedCCDetailsBinary;
-    }*/
-/* Method unused
-    public static byte[] getByteByString(String binaryString) {
-        int splitSize = 8;
-
-        if (binaryString.length() % splitSize == 0) {
-            int index = 0;
-            int position = 0;
-
-            byte[] resultByteArray = new byte[binaryString.length() / splitSize];
-            StringBuilder text = new StringBuilder(binaryString);
-
-            while (index < text.length()) {
-                String binaryStringChunk = text.substring(index, Math.min(index + splitSize, text.length()));
-                Integer byteAsInt = Integer.parseInt(binaryStringChunk, 2);
-                resultByteArray[position] = byteAsInt.byteValue();
-                index += splitSize;
-                position++;
-            }
-            return resultByteArray;
-        } else {
-            System.out.println("Cannot convert binary string to byte[], because of the input length. '" + binaryString + "' % 8 != 0");
-            return null;
-        }
-    }*/
-/* Method unused
-    public String StringconvertToBinary(String input) {
-        String binary = "";
-
-        int length = input.length();
-
-        for (int i = 0; i < length; i++) {
-            //ASCII
-            int val = Integer.valueOf(input.charAt(i));
-
-            String temp = Integer.toBinaryString(val);
-
-            temp = String.format("%8s", temp).replace(' ', '0');
-            binary += temp;
-
-        }
-        return binary;
-    }*/
-    //    public void decryptButtonOnClick(View view) throws NoSuchAlgorithmException, InvalidKeyException, UnrecoverableEntryException, InvalidAlgorithmParameterException, NoSuchPaddingException, BadPaddingException, IOException, KeyStoreException, IllegalBlockSizeException, CertificateException {
-//        System.out.println("The IV is: " + Base64.encodeToString(encryption.getIV(), Base64.DEFAULT) + " with length: " + encryption.getIV().length);
-//        String plaintext = decryption.decrypt("MyAlias", encryption.getEncryptedText(), encryption.getIV());
-//        plaintextTextView.setText(plaintext);
-//    }
-
-
 }
+
+
+
+

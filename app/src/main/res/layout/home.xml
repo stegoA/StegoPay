@@ -58,9 +58,9 @@
 
             <!-- Hello_user TextView-->
             <TextView
+                android:id="@+id/userGreetingTextView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Hello, John!"
                 android:textAppearance="@style/hello_user"
                 android:layout_alignParentLeft="true"
                 android:layout_alignParentTop="true"
@@ -104,7 +104,7 @@
             android:layout_marginTop="25dp"
             android:layout_marginLeft="25dp"
             android:background="@drawable/imagebutton_bg"
-            android:drawableTop="@drawable/ic_credit_card"
+            android:drawableTop="@drawable/ic_credit_card_white"
             android:padding="10dp"
             android:text="@string/add_card_button"
             android:textAllCaps="false"
@@ -140,7 +140,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
-        android:layout_marginLeft="30dp"
+        android:layout_marginLeft="35dp"
         android:layout_below="@+id/addCardButton"
         android:layout_marginTop="25dp"
         android:text="@string/my_activity"
@@ -156,8 +156,9 @@
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
         android:layout_toRightOf="@+id/my_activity"
-        android:layout_marginLeft="315dp"
-        android:layout_marginTop="313dp"
+        android:layout_marginLeft="313dp"
+        android:layout_below="@+id/viewCardsButton"
+        android:layout_marginTop="25dp"
         android:text="@string/view_all"
         android:textAppearance="@style/view_all"
         android:gravity="center_horizontal|top"
@@ -182,7 +183,7 @@
     <!-- Transactions listview-->
 
     <ListView
-        android:id="@+id/activityListView"
+        android:id="@+id/transactionsListView"
         android:layout_below="@+id/my_activity"
         android:layout_marginTop="10dp"
         android:layout_width="match_parent"

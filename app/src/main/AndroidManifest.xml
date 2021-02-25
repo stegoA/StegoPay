@@ -16,7 +16,8 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.StegoPayBETA">
 
-
+        <activity android:name=".ViewCards"></activity>
+        <activity android:name=".AddCard"></activity>
         <activity android:name=".Home">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

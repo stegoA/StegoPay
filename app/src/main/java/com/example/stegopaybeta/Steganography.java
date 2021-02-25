@@ -4,15 +4,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 
-import com.hankcs.algorithm.AhoCorasickDoubleArrayTrie;
-
-import net.amygdalum.stringsearchalgorithms.search.StringFinder;
-import net.amygdalum.stringsearchalgorithms.search.StringMatch;
-import net.amygdalum.stringsearchalgorithms.search.chars.AhoCorasick;
-import net.amygdalum.stringsearchalgorithms.search.chars.SetHorspool;
-import net.amygdalum.util.io.CharProvider;
-import net.amygdalum.util.io.StringCharProvider;
-
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
@@ -25,17 +16,16 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeMap;
 
-import static net.amygdalum.stringsearchalgorithms.search.MatchOption.LONGEST_MATCH;
-import static net.amygdalum.stringsearchalgorithms.search.MatchOption.NON_OVERLAP;
+
 
 
 public class Steganography {
 
     //Hashmap to store the all the 8, 3 bit combinations, and the pixel which contains each combination
-    private HashMap<Integer, String> check_image_validity = new HashMap<>();
+    public HashMap<Integer, String> check_image_validity = new HashMap<>();
 
     //Hashmap to store pixels ready to be mapped, key is the pixel location and value is the pixel in binary,(Red, green , blue)
-    private HashMap<String, String> valid_pixels_in_binary = new HashMap<>();
+    public HashMap<String, String> valid_pixels_in_binary = new HashMap<>();
 
     //boolean array to check if all 8 combinations have been found or not.
     private Boolean[] values_done_in_hashmap = new Boolean[8];
@@ -509,114 +499,6 @@ public class Steganography {
                 }
 
             }
-
-        }
-        return mappingKey;
-    }
-
-    public String mapping_with_Aho_2(String CCDetailsBinary) {
-        //Total number of bits mapped
-        int number_of_bits_done = 0;
-
-        //Total number of bits to be mapped, which is equal to the length of the secret message(Credit Card details)
-        int total_number_of_bits_to_map = CCDetailsBinary.length();
-
-        //To store the mapping key
-        String mappingKey = "";
-
-        //While all the bits are not mapped
-        while (number_of_bits_done != total_number_of_bits_to_map) {
-
-            //Minimum number of bits to map in current round
-            int bits_to_map;
-
-            //If there are 2 bits remaining in the secret message, bits to map is set to 2
-            if ((total_number_of_bits_to_map - number_of_bits_done) == 2) {
-                bits_to_map = 2;
-                //System.out.println("First If Bits to map");
-            } //Else if there is 1 bit remaining in the secret message, bits to map is set to 1
-            else if ((total_number_of_bits_to_map - number_of_bits_done) == 1) {
-                bits_to_map = 1;
-                //System.out.println("Else if Bits to map");
-            } //Else at minimum three bits will be mapped to a pixel
-            else {
-                bits_to_map = 3;
-                //System.out.println("Else bits to map");
-            }
-
-            //System.out.println("Bits to map : " + bits_to_map);
-            //Taking the next (minimum number of bits) bits to map from the secret message (Credit card details)
-            String secretMessagePattern = CCDetailsBinary.substring(number_of_bits_done, number_of_bits_done + bits_to_map);
-            //System.out.println("Secret message pattern : " + secretMessagePattern);
-
-            //Converting those secretMessagePattern to decimal.
-            int secretMessagePattern_Decimal = Integer.parseInt(secretMessagePattern, 2);
-            //System.out.println("Secret message pattern decimal : " + secretMessagePattern_Decimal);
-
-            //Get the appropriate pixel location from the hashmap which stores the 8 three bit combinations, with the pixel location
-            String pixelLocation_to_match_in = check_image_validity.get(secretMessagePattern_Decimal);
-
-            //Get the pixel in binary from the valid pixels in binary hashmap
-            String pixel_to_match_in = valid_pixels_in_binary.get(pixelLocation_to_match_in);
-            //System.out.println("Pixel to match in : " + pixel_to_match_in);
-
-            //to store the entire string pattern which will be divided from the secret message
-            String multipleMatchString = "";
-
-            //Array List to add the patterns into
-            ArrayList<String> patterns = new ArrayList<String>();
-
-            //Tree map for patterns
-            TreeMap<String, String> map = new TreeMap<String, String>();
-
-            //If the remaining number of bits to map are greater than or equal to 24, which is each pixel size in bits
-            if ((total_number_of_bits_to_map - number_of_bits_done) >= 24) {
-
-                //Get the next 24 bits from the secret message (CC Details)
-                multipleMatchString = CCDetailsBinary.substring(number_of_bits_done, number_of_bits_done + 24);
-                //System.out.println("In > 24 : "+multipleMatchString);
-            } //Else if the remaining bits to map is less than 24
-            else {
-                //Get all the remaining bits
-                multipleMatchString = CCDetailsBinary.substring(number_of_bits_done);
-                //System.out.println("In < 24 : "+multipleMatchString);
-            }
-            //System.out.println("Number of bits done : "+number_of_bits_done);
-
-            //Go through the multiple match string, and add patterns to the trie builder
-            //Adding patterns from positions 0 to 3, 0 to 4, and so on till the entire string
-            for (int i = 0; (i + bits_to_map) <= multipleMatchString.length(); i++) {
-                //System.out.println("Substring i : "+ i + " : "+ multipleMatchString.substring(0,i+bits_to_map));
-                patterns.add(multipleMatchString.substring(0, i + bits_to_map));
-            }
-            //Building the trie
-            for (String key : patterns) {
-                map.put(key, key);
-            }
-
-            AhoCorasickDoubleArrayTrie<String> acdat = new AhoCorasickDoubleArrayTrie<String>();
-            acdat.build(map);
-
-            //Getting the patterns which match the pixel
-            List<AhoCorasickDoubleArrayTrie.Hit<String>> wordList = acdat.parseText(pixel_to_match_in);
-
-            int longestPattern_index = 0;
-            AhoCorasickDoubleArrayTrie.Hit<String> longestMatch = wordList.get(0);
-            for (int i = 1; i < wordList.size(); i++) {
-                if (wordList.get(i).value.length() > wordList.get(longestPattern_index).value.length()) {
-                    longestPattern_index = i;
-                    longestMatch = wordList.get(i);
-                }
-            }
-
-
-            int numberOfBitsDoneInCurrentRound = longestMatch.value.length();
-            int startingFrom = longestMatch.begin;
-            mappingKey += numberOfBitsDoneInCurrentRound + ":" + startingFrom + ":" + pixelLocation_to_match_in + ";";
-
-            //System.out.println("Mapping Key : "+ mappingKey);
-            number_of_bits_done += numberOfBitsDoneInCurrentRound;
-            //System.out.println("Number of bits done : "+number_of_bits_done);
 
         }
         return mappingKey;

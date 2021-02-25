@@ -32,7 +32,7 @@
             android:background="@drawable/bottom_rounded_rectangle" />
 
 
-        <!-- Add card TextView-->
+        <!-- Cards TextView-->
         <TextView
             android:id="@+id/add_card"
             android:layout_width="wrap_content"
