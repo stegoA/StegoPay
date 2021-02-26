@@ -32,15 +32,16 @@
             android:layout_marginTop="85dp"
             android:background="@drawable/bottom_rounded_rectangle" />
 
-        <View
-            android:id="@+id/ellipse_3"
+
+
+        <de.hdodenhof.circleimageview.CircleImageView
+            xmlns:app="http://schemas.android.com/apk/res-auto"
+            android:id="@+id/profileImage"
             android:layout_width="80dp"
             android:layout_height="80dp"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentTop="true"
-            android:layout_gravity="center"
             android:background="@drawable/profile_picture_ellipse"
-            />
+            android:layout_gravity="center"
+           />
 
 
         <!-- Home TextView -->
@@ -56,14 +57,14 @@
             />
 
         <ImageButton
+            android:id="@+id/editProfileImgButton"
             android:layout_width="24dp"
             android:layout_height="24dp"
             android:layout_gravity="right"
             android:layout_marginTop="15dp"
             android:layout_marginRight="15dp"
-            android:src="@drawable/ic_edit"
             android:background="@null"
-            />
+            android:src="@drawable/ic_edit" />
 
         <!-- Ellipse2 -->
         <View
@@ -208,18 +209,32 @@
         <!-- Change password button-->
 
         <android.widget.Button
-            android:id="@+id/changePasswordButton"
-            android:layout_width="240dp"
-            android:layout_height="50dp"
-            android:layout_gravity="center"
-            android:layout_marginTop="30dp"
-            android:text="Change password"
-            android:backgroundTint="@color/gradient_purple"
-            android:textColor="@color/white"
+        android:id="@+id/changePassword"
+        android:layout_width="240dp"
+        android:layout_height="50dp"
+        android:layout_gravity="center"
+        android:layout_marginTop="30dp"
+        android:backgroundTint="@color/gradient_purple"
+        android:text="Change password"
 
-/>
+        android:textColor="@color/white" />
+
 
     </LinearLayout>
 
+<!--
+    <TextView
+        android:id="@+id/returnHome"
+        android:layout_width="203dp"
+        android:layout_height="51dp"
+        android:layout_gravity="center"
+        android:layout_marginTop="600dp"
+        android:layout_marginLeft="100dp"
+        android:clickable="true"
+        android:gravity="center_horizontal|top"
+        android:text="Return to home"
+        android:textColor="#978B8B"
+        android:textColorHighlight="#D5D3D3" />
+-->
 
 </RelativeLayout>

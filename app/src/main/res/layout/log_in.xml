@@ -58,6 +58,7 @@
 
     </FrameLayout>
 
+
     <FrameLayout
         android:id="@+id/frameLayout2"
         android:layout_width="match_parent"
@@ -78,9 +79,9 @@
             android:background="@drawable/cc_form_bg" />
 
 
-
         <!-- Email EditText-->
         <EditText
+            android:id="@+id/userEmailEditText"
             android:layout_width="264dp"
             android:layout_height="31dp"
             android:layout_gravity="center"
@@ -94,6 +95,7 @@
 
         <!-- Password EditText-->
         <EditText
+            android:id="@+id/userPasswordEditText"
             android:layout_width="264dp"
             android:layout_height="31dp"
             android:layout_gravity="center"
@@ -104,28 +106,33 @@
             android:inputType="textPassword"
             android:textAlignment="center" />
 
+
         <!-- Reset password redirect-->
         <TextView
-            android:id="@+id/resetPassRedirect"
+            android:id="@+id/resetPasswordRedirect"
             android:layout_width="116dp"
             android:layout_height="43dp"
             android:layout_alignParentLeft="true"
             android:layout_alignParentTop="true"
             android:layout_marginLeft="149dp"
-            android:layout_marginTop="430dp"
+            android:layout_marginTop="410dp"
             android:clickable="true"
             android:gravity="center_horizontal|top"
             android:text="Forgot password?"
             android:textColor="#978B8B" />
 
+
+
         <Button
+            android:id="@+id/logIn"
             android:layout_width="174dp"
             android:layout_height="55dp"
             android:layout_gravity="center"
-            android:layout_marginTop="250dp"
+            android:layout_marginTop="225dp"
             android:backgroundTint="@color/gradient_purple"
             android:elevation="4dp"
-            android:text="Log In" />
+            android:text="Log In"
+            android:textColor="#FFFFFF" />
 
         <!-- Sign up redirect -->
         <TextView
@@ -135,7 +142,7 @@
             android:layout_alignParentLeft="true"
             android:layout_alignParentTop="true"
             android:layout_marginLeft="100dp"
-            android:layout_marginTop="680dp"
+            android:layout_marginTop="620dp"
             android:clickable="true"
             android:gravity="center_horizontal|top"
             android:text="Don't have an account? Sign Up"
@@ -145,14 +152,30 @@
         <!-- StegoPay logo -->
         <ImageView
             android:id="@+id/stegopaylogo"
-            android:layout_width="209dp"
-            android:layout_height="169dp"
+            android:layout_width="159dp"
+            android:layout_height="111dp"
             android:layout_alignParentLeft="true"
             android:layout_alignParentTop="true"
-            android:layout_marginLeft="100dp"
-            android:layout_marginTop="125dp"
+            android:layout_marginLeft="130dp"
+            android:layout_marginTop="150dp"
             app:srcCompat="@drawable/stegopay_logo" />
+
+        <RelativeLayout
+            android:layout_width="420dp"
+            android:layout_height="750dp">
+            <ProgressBar
+                android:id="@+id/progress"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_marginTop="480dp"
+                android:layout_marginLeft="180dp"
+                android:indeterminateTint="@color/gradient_purple"
+                android:visibility="invisible"
+                />
+        </RelativeLayout>
 
 
     </FrameLayout>
+
+
 </RelativeLayout>

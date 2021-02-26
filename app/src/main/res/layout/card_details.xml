@@ -166,7 +166,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="15dp"
                 android:layout_marginTop="10dp"
-                android:text="[Expiration Date]"
+                android:text="[CVV]"
                 android:textColor="@color/white" />
 
         </RelativeLayout>
@@ -228,6 +228,19 @@
         android:layout_marginLeft="25dp"
         android:layout_marginRight="25dp"
         android:layout_height="295dp" />
+
+    <TextView
+        android:id="@+id/returnHome"
+        android:layout_width="203dp"
+        android:layout_height="51dp"
+        android:layout_gravity="center"
+        android:layout_marginTop="650dp"
+        android:layout_marginLeft="100dp"
+        android:clickable="true"
+        android:gravity="center_horizontal|top"
+        android:text="Return to home"
+        android:textColor="#978B8B"
+        android:textColorHighlight="#D5D3D3" />
 
 
 

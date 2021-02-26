@@ -1,4 +1,4 @@
-package com.example.stegopaybeta;
+package com.example.stegopaybeta.usedclasses;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -176,8 +176,9 @@ public class Steganography {
         }
         System.out.println(check_image_validity);
     }
+
     //Updated preprocessing without sets
-    public void preProcessing2(){
+    public void preProcessing2() {
 
         //Get width and height of the image
         final int width = image.getWidth();
@@ -353,6 +354,8 @@ public class Steganography {
         System.out.println(check_image_validity);
     }
 
+
+    //hashmap 2
     public void update_for_preprocessing(int red, int green, int blue, int key, String pixelLocation) {
         check_image_validity.put(key, pixelLocation);
 
@@ -370,7 +373,10 @@ public class Steganography {
 
         //Set boolean value for this key to be true.
         values_done_in_hashmap[key] = true;
+
+        System.out.println(valid_pixels_in_binary);
     }
+
 
     public String single_pattern_mapping(String CCDetailsBinary) {
 

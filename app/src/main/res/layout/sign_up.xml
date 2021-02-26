@@ -79,11 +79,12 @@
 
         <!-- First name EditText-->
         <EditText
+            android:id="@+id/firstNameEditText"
             android:layout_width="128dp"
             android:layout_height="31dp"
             android:layout_gravity="center"
             android:layout_marginLeft="-68dp"
-            android:layout_marginTop="-70dp"
+            android:layout_marginTop="-45dp"
             android:background="@drawable/rounded_edittext_bg"
             android:elevation="4dp"
             android:hint="First name"
@@ -92,11 +93,12 @@
 
         <!-- Last name EditText-->
         <EditText
+            android:id="@+id/lastNameEditText"
             android:layout_width="128dp"
             android:layout_height="31dp"
             android:layout_gravity="center"
             android:layout_marginLeft="68dp"
-            android:layout_marginTop="-70dp"
+            android:layout_marginTop="-45dp"
             android:background="@drawable/rounded_edittext_bg"
             android:elevation="4dp"
             android:hint="Last name"
@@ -105,10 +107,11 @@
 
         <!-- Email EditText-->
         <EditText
+            android:id="@+id/emailAddressEditText"
             android:layout_width="264dp"
             android:layout_height="31dp"
             android:layout_gravity="center"
-            android:layout_marginTop="-20dp"
+            android:layout_marginTop="5dp"
             android:background="@drawable/rounded_edittext_bg"
             android:elevation="4dp"
             android:hint="Email address"
@@ -118,10 +121,11 @@
 
         <!-- Password EditText-->
         <EditText
+            android:id="@+id/passwordEditText"
             android:layout_width="264dp"
             android:layout_height="31dp"
             android:layout_gravity="center"
-            android:layout_marginTop="30dp"
+            android:layout_marginTop="55dp"
             android:background="@drawable/rounded_edittext_bg"
             android:elevation="4dp"
             android:hint="Password"
@@ -130,35 +134,38 @@
 
         <!-- Confirm password EditText-->
         <EditText
+            android:id="@+id/confirmPasswordEditText"
             android:layout_width="264dp"
             android:layout_height="31dp"
             android:layout_gravity="center"
-            android:layout_marginTop="80dp"
+            android:layout_marginTop="105dp"
             android:background="@drawable/rounded_edittext_bg"
             android:elevation="4dp"
             android:hint="Confirm password"
             android:inputType="textPassword"
             android:textAlignment="center" />
 
-        <!-- Next button-->
+        <!-- Sign Up button-->
         <Button
+            android:id="@+id/signUpButton"
             android:layout_width="174dp"
             android:layout_height="55dp"
             android:layout_gravity="center"
-            android:layout_marginTop="250dp"
+            android:layout_marginTop="225dp"
             android:backgroundTint="@color/gradient_purple"
             android:elevation="4dp"
-            android:text="Next" />
+            android:text="Sign Up"
+            android:textColor="#FFFFFF" />
 
         <!-- Login redirect -->
         <TextView
-            android:id="@+id/signUpRedirect"
+            android:id="@+id/logInRedirect"
             android:layout_width="203dp"
-            android:layout_height="51dp"
+            android:layout_height="101dp"
             android:layout_alignParentLeft="true"
             android:layout_alignParentTop="true"
             android:layout_marginLeft="100dp"
-            android:layout_marginTop="680dp"
+            android:layout_marginTop="620dp"
             android:clickable="true"
             android:gravity="center_horizontal|top"
             android:text="Already have an account? Log in"
@@ -168,12 +175,12 @@
         <!-- StegoPay logo -->
         <ImageView
             android:id="@+id/stegopaylogo"
-            android:layout_width="209dp"
-            android:layout_height="169dp"
+            android:layout_width="159dp"
+            android:layout_height="111dp"
             android:layout_alignParentLeft="true"
             android:layout_alignParentTop="true"
-            android:layout_marginLeft="100dp"
-            android:layout_marginTop="125dp"
+            android:layout_marginLeft="130dp"
+            android:layout_marginTop="150dp"
             app:srcCompat="@drawable/stegopay_logo" />
 
 

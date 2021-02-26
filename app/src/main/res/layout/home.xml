@@ -32,8 +32,9 @@
                 android:layout_marginTop="85dp"
                 android:background="@drawable/bottom_rounded_rectangle" />
 
-            <View
-                android:id="@+id/ellipse_3"
+            <de.hdodenhof.circleimageview.CircleImageView
+                xmlns:app="http://schemas.android.com/apk/res-auto"
+                android:id="@+id/miniProfileImage"
                 android:layout_width="42dp"
                 android:layout_height="42dp"
                 android:layout_alignParentLeft="true"
@@ -58,15 +59,15 @@
 
             <!-- Hello_user TextView-->
             <TextView
+                android:id="@+id/helloNameTextView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Hello, John!"
-                android:textAppearance="@style/hello_user"
                 android:layout_alignParentLeft="true"
                 android:layout_alignParentTop="true"
                 android:layout_marginLeft="15dp"
                 android:layout_marginTop="71dp"
-                 />
+                android:text="Hello, John!"
+                android:textAppearance="@style/hello_user" />
 
             <!-- Ellipse2 -->
             <View

@@ -8,7 +8,6 @@ import androidx.core.content.ContextCompat;
 
 import android.Manifest;
 import android.app.AlertDialog;
-import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -25,59 +24,31 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.ProgressBar;
 import android.widget.Toast;
 
-import net.amygdalum.stringsearchalgorithms.search.StringFinder;
-import net.amygdalum.stringsearchalgorithms.search.StringMatch;
-import net.amygdalum.stringsearchalgorithms.search.chars.AhoCorasick;
-import net.amygdalum.stringsearchalgorithms.search.chars.Horspool;
-import net.amygdalum.util.io.CharProvider;
-import net.amygdalum.util.io.StringCharProvider;
+import com.example.stegopaybeta.usedclasses.Steganography;
 
-import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.ObjectOutputStream;
 import java.io.OutputStream;
-import java.io.PrintWriter;
-import java.io.UnsupportedEncodingException;
-import java.math.BigInteger;
-import java.net.MalformedURLException;
 import java.net.Socket;
-import java.net.URL;
-import java.nio.ByteBuffer;
-import java.nio.CharBuffer;
-import java.nio.charset.StandardCharsets;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
-import java.security.Key;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.security.UnrecoverableEntryException;
-import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
-import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.List;
-import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
-
-import static java.util.Arrays.asList;
-import static net.amygdalum.stringsearchalgorithms.search.MatchOption.LONGEST_MATCH;
-import static net.amygdalum.stringsearchalgorithms.search.MatchOption.NON_OVERLAP;
 
 public class AddCard extends AppCompatActivity {
 
@@ -513,7 +484,7 @@ public class AddCard extends AppCompatActivity {
 
         private String encryptedCCDetailsBinary;
 
-        //Default constructor to get encryted credit card details in binary
+        //Default constructor to get encrypted credit card details in binary
         mapping_background(String encryptedCCDetailsBinary) {
             this.encryptedCCDetailsBinary = encryptedCCDetailsBinary;
         }
@@ -593,6 +564,101 @@ public class AddCard extends AppCompatActivity {
 //        String plaintext = decryption.decrypt("MyAlias", encryption.getEncryptedText(), encryption.getIV());
 //        plaintextTextView.setText(plaintext);
 //    }
+/*
+    public void addCardDialog(){
+
+            //Hash password at client side
+            //String hashedPassword = BCrypt.hashpw(password.getText().toString(), BCrypt.gensalt());
+
+            HashMap<String, String> hmap = new HashMap<>();
+
+            //Send values entered by the user to the db
+            hmap.put("email", userEmailAddress.getText().toString());
+            hmap.put("password", userPassword.getText().toString());
+
+            Call<Void> call = retrofitInterface.callAddCard(hmap);
+
+            //Make HTTP request
+            call.enqueue(new Callback<UserRequests>() {
+
+                @Override
+                //When HTTP request succeeds
+                public void onResponse(Call<UserRequests> call, Response<UserRequests> response) {
+
+                    if (response.isSuccessful()) {
+                        Intent intent = new Intent(LogIn.this, Home.class);
+
+                        //print token received when user logs in (TESTING)
+                        UserRequests stuff = response.body();
+                        String token = stuff.getAuthToken();
+                        System.out.println(token);
 
 
+                        //store token in shared preferences
+                        //SharedPreferences preferences = getSharedPreferences("myPrefs", Context.MODE_PRIVATE);
+                        //preferences.edit().putString("token", stuff.getAuthToken());
+                        //preferences.edit().commit();
+
+                        //String aToken = preferences.getString("token",stuff.getAuthToken());
+                        //System.out.println(aToken);
+
+
+                        Call<UserValue> call2 = retrofitInterface.getProfile("Bearer " + token);
+                        System.out.println(token);
+
+                        //creates a session in which the logged in user can make any requests they want (e.g add card, view profile etc)
+                        tokenManager.startSession(hmap.get("email"), token);
+
+                        //If log in is successful, GET the user's name from their profile and place it on the homepage so the UI says "Hello, [User's first name]!"
+                        call2.enqueue(new Callback<UserValue>() {
+
+                            @Override
+                            public void onResponse(Call<UserValue> call, Response<UserValue> response) {
+
+                                if (response.isSuccessful()) {
+
+                                    String helloName = response.body().getUserModel().getUserFirstName();
+
+                                    //Sets homepage's helloNameTextView to Hello [User's first name]
+                                    intent.putExtra("Hello[User]", "Hello, " + helloName + "!");
+                                    startActivity(intent);
+
+
+                                } else if (response.code() == 401) {
+
+                                    Toast.makeText(LogIn.this, "You are not authorized to access this section.", Toast.LENGTH_LONG).show();
+                                }
+
+                            }
+
+                            @Override
+                            public void onFailure(Call<UserValue> call, Throwable t) {
+                                Toast.makeText(LogIn.this, "An error has occurred. Please try again.", Toast.LENGTH_LONG).show();
+
+                            }
+                        });
+
+
+                    } else if (response.code() == 404) {
+                        Toast.makeText(LogIn.this, "An account with the email " + hmap.get("email") + " does not exist.", Toast.LENGTH_LONG).show();
+
+                    } else {
+                        Toast.makeText(LogIn.this, "Invalid email/password combination.", Toast.LENGTH_LONG).show();
+
+                    }
+
+                }
+
+                @Override
+                //When HTTP request fails
+                public void onFailure(Call<UserRequests> call, Throwable t) {
+                    Toast.makeText(LogIn.this, "An error has occurred. Please try again.", Toast.LENGTH_LONG).show();
+
+                }
+            });
+
+        }
+
+    }
+*/
 }
