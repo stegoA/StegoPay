@@ -22,10 +22,7 @@ import java.util.TreeMap;
 public class Steganography {
 
     //Hashmap to store the all the 8, 3 bit combinations, and the pixel which contains each combination
-    public HashMap<Integer, String> check_image_validity = new HashMap<>();
-
-    //Hashmap to store pixels ready to be mapped, key is the pixel location and value is the pixel in binary,(Red, green , blue)
-    public HashMap<String, String> valid_pixels_in_binary = new HashMap<>();
+    private HashMap<Integer, String> check_image_validity = new HashMap<>();
 
     //boolean array to check if all 8 combinations have been found or not.
     private Boolean[] values_done_in_hashmap = new Boolean[8];
@@ -44,11 +41,15 @@ public class Steganography {
         return image;
     }
 
+    public HashMap<Integer,String> getHashMap_1(){
+        return check_image_validity;
+    }
+
     public void setImage(Bitmap image) {
         this.image = image;
         Arrays.fill(this.values_done_in_hashmap, Boolean.FALSE);
         check_image_validity.clear();
-        valid_pixels_in_binary.clear();
+        image_stego_pay_ready = false;
     }
 
     //Preprocessing to populate the hashmaps
@@ -135,17 +136,6 @@ public class Steganography {
                     //Insert into the hashmap the value (0 to 7) and the pixel location
                     check_image_validity.put(temp, pixelLocation);
 
-                    //Insert binary value of the pixel into the pixel location to pixel binary hashmap
-                    String blueBinary = Integer.toBinaryString(blue);
-                    String greenBinary = Integer.toBinaryString(green);
-                    String redBinary = Integer.toBinaryString(red);
-
-                    blueBinary = String.format("%8s", blueBinary).replace(' ', '0');
-                    redBinary = String.format("%8s", redBinary).replace(' ', '0');
-                    greenBinary = String.format("%8s", greenBinary).replace(' ', '0');
-
-                    valid_pixels_in_binary.put(pixelLocation, redBinary + greenBinary + blueBinary);
-
                     //Set boolean value for this key to be true.
                     values_done_in_hashmap[temp] = true;
                     pixels_mapped++;
@@ -166,6 +156,7 @@ public class Steganography {
         }
         System.out.println(check_image_validity);
     }
+
     //Updated preprocessing without sets
     public void preProcessing2(){
 
@@ -221,110 +212,110 @@ public class Steganography {
             //Using the formulas to compute all the 3 bit combinations of a pixel
             formula_result = (int) ((Math.floor(blue / 32)) % 8);
             if (values_done_in_hashmap[formula_result] == false) {
-                update_for_preprocessing(red, green, blue, formula_result, pixelLocation);
+                update_for_preprocessing(formula_result, pixelLocation);
                 pixels_mapped++;
             }
 
             formula_result = (int) ((Math.floor(blue / 16)) % 8);
             if (values_done_in_hashmap[formula_result] == false) {
-                update_for_preprocessing(red, green, blue, formula_result, pixelLocation);
+                update_for_preprocessing(formula_result, pixelLocation);
                 pixels_mapped++;
             }
 
             formula_result = (int) ((Math.floor(blue / 8)) % 8);
             if (values_done_in_hashmap[formula_result] == false) {
-                update_for_preprocessing(red, green, blue, formula_result, pixelLocation);
+                update_for_preprocessing(formula_result, pixelLocation);
                 pixels_mapped++;
             }
 
             formula_result = (int) ((Math.floor(blue / 4)) % 8);
             if (values_done_in_hashmap[formula_result] == false) {
-                update_for_preprocessing(red, green, blue, formula_result, pixelLocation);
+                update_for_preprocessing(formula_result, pixelLocation);
                 pixels_mapped++;
             }
 
             formula_result = (int) ((Math.floor(blue / 2)) % 8);
             if (values_done_in_hashmap[formula_result] == false) {
-                update_for_preprocessing(red, green, blue, formula_result, pixelLocation);
+                update_for_preprocessing(formula_result, pixelLocation);
                 pixels_mapped++;
             }
 
             formula_result = (blue % 8);
             if (values_done_in_hashmap[formula_result] == false) {
-                update_for_preprocessing(red, green, blue, formula_result, pixelLocation);
+                update_for_preprocessing(formula_result, pixelLocation);
                 pixels_mapped++;
             }
 
             formula_result = (int) ((Math.floor(green / 32)) % 8);
             if (values_done_in_hashmap[formula_result] == false) {
-                update_for_preprocessing(red, green, blue, formula_result, pixelLocation);
+                update_for_preprocessing(formula_result, pixelLocation);
                 pixels_mapped++;
             }
 
             formula_result = (int) ((Math.floor(green / 16)) % 8);
             if (values_done_in_hashmap[formula_result] == false) {
-                update_for_preprocessing(red, green, blue, formula_result, pixelLocation);
+                update_for_preprocessing(formula_result, pixelLocation);
                 pixels_mapped++;
             }
 
             formula_result = (int) ((Math.floor(green / 8)) % 8);
             if (values_done_in_hashmap[formula_result] == false) {
-                update_for_preprocessing(red, green, blue, formula_result, pixelLocation);
+                update_for_preprocessing(formula_result, pixelLocation);
                 pixels_mapped++;
             }
 
             formula_result = (int) ((Math.floor(green / 4)) % 8);
             if (values_done_in_hashmap[formula_result] == false) {
-                update_for_preprocessing(red, green, blue, formula_result, pixelLocation);
+                update_for_preprocessing(formula_result, pixelLocation);
                 pixels_mapped++;
             }
 
             formula_result = (int) ((Math.floor(green / 2)) % 8);
             if (values_done_in_hashmap[formula_result] == false) {
-                update_for_preprocessing(red, green, blue, formula_result, pixelLocation);
+                update_for_preprocessing(formula_result, pixelLocation);
                 pixels_mapped++;
             }
 
             formula_result = (green % 8);
             if (values_done_in_hashmap[formula_result] == false) {
-                update_for_preprocessing(red, green, blue, formula_result, pixelLocation);
+                update_for_preprocessing(formula_result, pixelLocation);
                 pixels_mapped++;
             }
 
 
             formula_result = (int) ((Math.floor(red / 32)) % 8);
             if (values_done_in_hashmap[formula_result] == false) {
-                update_for_preprocessing(red, green, blue, formula_result, pixelLocation);
+                update_for_preprocessing(formula_result, pixelLocation);
                 pixels_mapped++;
             }
 
             formula_result = (int) ((Math.floor(red / 16)) % 8);
             if (values_done_in_hashmap[formula_result] == false) {
-                update_for_preprocessing(red, green, blue, formula_result, pixelLocation);
+                update_for_preprocessing(formula_result, pixelLocation);
                 pixels_mapped++;
             }
 
             formula_result = (int) ((Math.floor(red / 8)) % 8);
             if (values_done_in_hashmap[formula_result] == false) {
-                update_for_preprocessing(red, green, blue, formula_result, pixelLocation);
+                update_for_preprocessing(formula_result, pixelLocation);
                 pixels_mapped++;
             }
 
             formula_result = (int) ((Math.floor(red / 4)) % 8);
             if (values_done_in_hashmap[formula_result] == false) {
-                update_for_preprocessing(red, green, blue, formula_result, pixelLocation);
+                update_for_preprocessing(formula_result, pixelLocation);
                 pixels_mapped++;
             }
 
             formula_result = (int) ((Math.floor(red / 2)) % 8);
             if (values_done_in_hashmap[formula_result] == false) {
-                update_for_preprocessing(red, green, blue, formula_result, pixelLocation);
+                update_for_preprocessing(formula_result, pixelLocation);
                 pixels_mapped++;
             }
 
             formula_result = (red % 8);
             if (values_done_in_hashmap[formula_result] == false) {
-                update_for_preprocessing(red, green, blue, formula_result, pixelLocation);
+                update_for_preprocessing(formula_result, pixelLocation);
                 pixels_mapped++;
             }
 
@@ -343,20 +334,9 @@ public class Steganography {
         System.out.println(check_image_validity);
     }
 
-    public void update_for_preprocessing(int red, int green, int blue, int key, String pixelLocation) {
+    public void update_for_preprocessing(int key, String pixelLocation) {
+        //Setting hashmap_1
         check_image_validity.put(key, pixelLocation);
-
-        //Insert binary value of the pixel into the pixel location to pixel binary hashmap
-        String blueBinary = Integer.toBinaryString(blue);
-        String greenBinary = Integer.toBinaryString(green);
-        String redBinary = Integer.toBinaryString(red);
-
-        blueBinary = String.format("%8s", blueBinary).replace(' ', '0');
-        redBinary = String.format("%8s", redBinary).replace(' ', '0');
-        greenBinary = String.format("%8s", greenBinary).replace(' ', '0');
-        //System.out.println("Pixel : " + redBinary + greenBinary + blueBinary);
-
-        valid_pixels_in_binary.put(pixelLocation, redBinary + greenBinary + blueBinary);
 
         //Set boolean value for this key to be true.
         values_done_in_hashmap[key] = true;
@@ -382,31 +362,51 @@ public class Steganography {
             //If there are 2 bits remaining in the secret message, bits to map is set to 2
             if ((total_number_of_bits_to_map - number_of_bits_done) == 2) {
                 bits_to_map = 2;
-                //System.out.println("First If Bits to map");
-            } //Else if there is 1 bit remaining in the secret message, bits to map is set to 1
+            }
+            //Else if there is 1 bit remaining in the secret message, bits to map is set to 1
             else if ((total_number_of_bits_to_map - number_of_bits_done) == 1) {
                 bits_to_map = 1;
-                //System.out.println("Else if Bits to map");
-            } //Else at minimum three bits will be mapped to a pixel
+            }
+            //Else at minimum three bits will be mapped to a pixel
             else {
                 bits_to_map = 3;
-                //System.out.println("Else bits to map");
             }
 
-            //System.out.println("Bits to map : " + bits_to_map);
             //Taking the next (minimum number of bits) bits to map from the secret message (Credit card details)
             String secretMessagePattern = CCDetailsBinary.substring(number_of_bits_done, number_of_bits_done + bits_to_map);
-            //System.out.println("Secret message pattern : " + secretMessagePattern);
 
             //Converting those secretMessagePattern to decimal.
             int secretMessagePattern_Decimal = Integer.parseInt(secretMessagePattern, 2);
-            //System.out.println("Secret message pattern decimal : " + secretMessagePattern_Decimal);
 
             //Get the appropriate pixel location from the hashmap which stores the 8 three bit combinations, with the pixel location
             String pixelLocation_to_match_in = check_image_validity.get(secretMessagePattern_Decimal);
 
-            //Get the pixel in binary from the valid pixels in binary hashmap
-            String pixel_to_match_in = valid_pixels_in_binary.get(pixelLocation_to_match_in);
+            //Splitting the pixel location by delimitier X to get row and column of the pixel
+            String[] pixels = pixelLocation_to_match_in.split("X");
+
+            //Row and column pixels of the pixel location
+            int rowPixel = Integer.parseInt(pixels[0]);
+            int colPixel = Integer.parseInt(pixels[1]);
+
+            //Getting the pixel at the location
+            int colour = image.getPixel(colPixel, rowPixel);
+            int red = Color.red(colour);
+            int blue = Color.blue(colour);
+            int green = Color.green(colour);
+
+            //Converting the pixel to binary
+            String redBinary = Integer.toBinaryString(red);
+            redBinary = String.format("%8s", redBinary).replace(' ', '0');
+
+            String greenBinary = Integer.toBinaryString(green);
+            greenBinary = String.format("%8s", greenBinary).replace(' ', '0');
+
+            String blueBinary = Integer.toBinaryString(blue);
+            blueBinary = String.format("%8s", blueBinary).replace(' ', '0');
+
+            //Pixel to match in is red binary + green binary + blue binary
+            String pixel_to_match_in = redBinary + greenBinary + blueBinary;
+
             //System.out.println("Pixel to match in : " + pixel_to_match_in);
 
             //Setting counter to go through the pixel
@@ -479,7 +479,7 @@ public class Steganography {
 
                     //Forming mapping key after end of round and break from the while loop
                     //System.out.println("Forming mapping key ");
-                    mappingKey += number_of_bits_done_in_current_round + ":" + i + ":" + secretMessagePattern_Decimal + ";";
+                    mappingKey += number_of_bits_done_in_current_round + ":" + i + ":" + pixelLocation_to_match_in + ";";
                     //System.out.println("Mapping key : " + mappingKey);
                     break;
                 } //Else if the minimum number of bits to map dont match
@@ -504,6 +504,169 @@ public class Steganography {
         return mappingKey;
     }
 
+    public String single_pattern_mapping(String CCDetailsBinary, Bitmap Image, HashMap<Integer,String> hashMap_1){
+
+        //Total number of bits mapped
+        int number_of_bits_done = 0;
+
+        //Total number of bits to be mapped, which is equal to the length of the secret message(Credit Card details)
+        int total_number_of_bits_to_map = CCDetailsBinary.length();
+
+        //To store the mapping key
+        String mappingKey = "";
+
+        //While all the bits are not mapped
+        while (number_of_bits_done != total_number_of_bits_to_map) {
+
+            //Minimum number of bits to map in current round
+            int bits_to_map;
+
+            //If there are 2 bits remaining in the secret message, bits to map is set to 2
+            if ((total_number_of_bits_to_map - number_of_bits_done) == 2) {
+                bits_to_map = 2;
+                //System.out.println("First If Bits to map");
+            } //Else if there is 1 bit remaining in the secret message, bits to map is set to 1
+            else if ((total_number_of_bits_to_map - number_of_bits_done) == 1) {
+                bits_to_map = 1;
+                //System.out.println("Else if Bits to map");
+            } //Else at minimum three bits will be mapped to a pixel
+            else {
+                bits_to_map = 3;
+                //System.out.println("Else bits to map");
+            }
+
+            //System.out.println("Bits to map : " + bits_to_map);
+            //Taking the next (minimum number of bits) bits to map from the secret message (Credit card details)
+            String secretMessagePattern = CCDetailsBinary.substring(number_of_bits_done, number_of_bits_done + bits_to_map);
+            //System.out.println("Secret message pattern : " + secretMessagePattern);
+
+            //Converting those secretMessagePattern to decimal.
+            int secretMessagePattern_Decimal = Integer.parseInt(secretMessagePattern, 2);
+            //System.out.println("Secret message pattern decimal : " + secretMessagePattern_Decimal);
+
+            //Get the appropriate pixel location from the hashmap which stores the 8 three bit combinations, with the pixel location
+            String pixelLocation_to_match_in = hashMap_1.get(secretMessagePattern_Decimal);
+
+            //Splitting the pixel location by delimitier X to get row and column of the pixel
+            String[] pixels = pixelLocation_to_match_in.split("X");
+
+            //Row and column pixels of the pixel location
+            int rowPixel = Integer.parseInt(pixels[0]);
+            int colPixel = Integer.parseInt(pixels[1]);
+
+            //Getting the pixel at the location
+            int colour = Image.getPixel(colPixel, rowPixel);
+            int red = Color.red(colour);
+            int blue = Color.blue(colour);
+            int green = Color.green(colour);
+
+            //Converting the pixel to binary
+            String redBinary = Integer.toBinaryString(red);
+            redBinary = String.format("%8s", redBinary).replace(' ', '0');
+
+            String greenBinary = Integer.toBinaryString(green);
+            greenBinary = String.format("%8s", greenBinary).replace(' ', '0');
+
+            String blueBinary = Integer.toBinaryString(blue);
+            blueBinary = String.format("%8s", blueBinary).replace(' ', '0');
+
+            //Pixel to match in is red binary + green binary + blue binary
+            String pixel_to_match_in = redBinary + greenBinary + blueBinary;
+
+            //Setting counter to go through the pixel
+            int i = 0;
+
+            //Going through the 24 pixel bits
+            while (i < pixel_to_match_in.length()) {
+
+                //System.out.println("I : " + i);
+                //To store the number of bits done in current round, for forming the mapping key
+                int number_of_bits_done_in_current_round = 0;
+
+                //If the number of bits to map from the ith location exceeds the pixel to match in length then break
+                if ((i + bits_to_map) > pixel_to_match_in.length()) {
+                    // System.out.println("In first if after while which will break");
+                    break;
+                }
+
+                //Taking the minimum number of bits to map from the pixel
+                String to_match_in = pixel_to_match_in.substring(i, i + bits_to_map);
+                //System.out.println("To match in : " + to_match_in);
+
+                //Converting to_match_in to decimal
+                int to_match_in_decimal = Integer.parseInt(to_match_in, 2);
+                //System.out.println("To match in decimal : " + to_match_in_decimal);
+
+                //Checking if the minimum number of bits to map matches
+                if (secretMessagePattern_Decimal == to_match_in_decimal) {
+
+                    //System.out.println("Match found");
+                    //Incrementing number of bits done in current round to minimum number of bits to match
+                    number_of_bits_done_in_current_round += bits_to_map;
+
+                    //Incrementing total number of bits done
+                    number_of_bits_done += number_of_bits_done_in_current_round;
+
+                    //System.out.println("Number of bits done : " + number_of_bits_done);
+                    //If all the bits are not yet done
+                    if (number_of_bits_done < total_number_of_bits_to_map) {
+
+                        //System.out.println("Trying to find further");
+                        //Starting after the bits mapped already, to the pixel length
+                        for (int j = i + bits_to_map; j < pixel_to_match_in.length(); j++) {
+                            //System.out.println("In Loop to find further : i " + i + " j : " + j);
+                            //System.out.println("CCDetailsBinary.charArt(number_of_bits_done): " + CCDetailsBinary.charAt(number_of_bits_done));
+                            //System.out.println("pixel_to_match_in.charAt(j) : " + pixel_to_match_in.charAt(j));
+
+                            //If the next bit in secret message is equal to the next bit in pixel to match in
+                            if (CCDetailsBinary.charAt(number_of_bits_done) == pixel_to_match_in.charAt(j)) {
+
+                                //Increment number of bits done in current round
+                                number_of_bits_done_in_current_round += 1;
+
+                                //Increment total number of bits done
+                                number_of_bits_done += 1;
+                                //System.out.println("Another find increment by 1 : number_of_bits_done : " + number_of_bits_done);
+                            } //Once a match is not found then break
+                            else {
+                                //System.out.println("no match found breaking for loop");
+                                break;
+                            }
+                            //Once all the bits are found then break
+                            if (number_of_bits_done >= total_number_of_bits_to_map) {
+                                //System.out.println("Breaking, already all of them are found");
+                                break;
+                            }
+
+                        }
+                    }
+
+                    //Forming mapping key after end of round and break from the while loop
+                    //System.out.println("Forming mapping key ");
+                    mappingKey += number_of_bits_done_in_current_round + ":" + i + ":" + pixelLocation_to_match_in + ";";
+                    //System.out.println("Mapping key : " + mappingKey);
+                    break;
+                } //Else if the minimum number of bits to map dont match
+                else {
+                    //System.out.println("In else ");
+                    //Get shift of the secret message using the shift table
+                    int shiftAmount = getShift(secretMessagePattern_Decimal, to_match_in_decimal);
+                    //System.out.println("Shift amount : " + shiftAmount);
+                    //Increment i by the shift amoung
+                    i = i + shiftAmount;
+                    //System.out.println("New I : " + i);
+                }
+                //Else if all the bits are mapped then break also
+                if (number_of_bits_done >= total_number_of_bits_to_map) {
+                    //System.out.println("LAST BREAKING");
+                    break;
+                }
+
+            }
+
+        }
+        return mappingKey;
+    }
 
     public int getShift(int patternDecimal, int textDecimal) {
         int shift = 0;
@@ -712,7 +875,7 @@ public class Steganography {
         return image_stego_pay_ready;
     }
 
-    public String decoding(String mappingKey, Bitmap image) {
+    public String decoding(String mappingKey, Bitmap Image) {
 
         //Getting each mapping by splitting using the semi colon delimiter
         String[] mappings = mappingKey.split(";");
@@ -728,10 +891,7 @@ public class Steganography {
             String[] singleMapping = mappings[i].split(":");
 
             //Splitting the pixel location by delimitier X to get row and column of the pixel
-            //String[] pixels = singleMapping[2].split("X");
-
-            //Hashmap key to get the pixel location
-            int hashMapKey = Integer.valueOf(singleMapping[2]);
+            String[] pixels = singleMapping[2].split("X");
 
             //Starting from value is the 2nd mapping key component
             int startingFrom = Integer.parseInt(singleMapping[1]);
@@ -740,12 +900,24 @@ public class Steganography {
             int numberOfBits = Integer.parseInt(singleMapping[0]);
 
             //Row and column pixels of the pixel location
-            //int rowPixel = Integer.parseInt(pixels[0]);
-            //int colPixel = Integer.parseInt(pixels[1]);
+            int rowPixel = Integer.parseInt(pixels[0]);
+            int colPixel = Integer.parseInt(pixels[1]);
 
-            //Getting pixel location & pixel from respective hashmaps
-            String pixelLocation = check_image_validity.get(hashMapKey);
-            String pixel = valid_pixels_in_binary.get(pixelLocation);
+            int colour = Image.getPixel(colPixel, rowPixel);
+            int red = Color.red(colour);
+            int blue = Color.blue(colour);
+            int green = Color.green(colour);
+
+            String redBinary = Integer.toBinaryString(red);
+            redBinary = String.format("%8s", redBinary).replace(' ', '0');
+
+            String greenBinary = Integer.toBinaryString(green);
+            greenBinary = String.format("%8s", greenBinary).replace(' ', '0');
+
+            String blueBinary = Integer.toBinaryString(blue);
+            blueBinary = String.format("%8s", blueBinary).replace(' ', '0');
+
+            String pixel = redBinary + greenBinary + blueBinary;
 
             //System.out.println("Pixel : " + pixel);
             decodingBinary += pixel.substring(startingFrom, startingFrom + numberOfBits);
@@ -950,4 +1122,6 @@ public class Steganography {
     }*/
 
 }
+
+
 

@@ -17,13 +17,13 @@ import android.os.Handler;
 import android.os.Message;
 import android.provider.OpenableColumns;
 import android.text.Editable;
-import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.Base64;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -47,16 +47,26 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 import static com.example.stegopaybeta.CreditCardUtils.getCardType;
-import static com.example.stegopaybeta.Home.JWT_TOKEN;
-import static com.example.stegopaybeta.Home.SHARED_PREFS;
-import static com.example.stegopaybeta.Home.getUnsafeOkHttpClient;
-import static com.example.stegopaybeta.Home.getUserIDFromToken;
+import static com.example.stegopaybeta.StegoPayUtils.BASE_URL;
+import static com.example.stegopaybeta.StegoPayUtils.JWT_TOKEN;
+import static com.example.stegopaybeta.StegoPayUtils.SHARED_PREF_NAME;
+import static com.example.stegopaybeta.StegoPayUtils.getUnsafeOkHttpClient;
+import static com.example.stegopaybeta.StegoPayUtils.getUserIDFromToken;
 
 public class AddCard extends AppCompatActivity {
+
+    @Override
+    public void onBackPressed() {
+        Intent i = new Intent(getApplicationContext(), Home.class);
+        startActivity(i);
+        //super.onBackPressed();
+    }
 
     SharedPreferences sharedPreferences;
 
     DataBaseHelper db;
+
+    Retrofit retrofit;
 
     // Gallery request code
     private static final int GALLERY_REQUEST_CODE = 123;
@@ -83,6 +93,8 @@ public class AddCard extends AppCompatActivity {
     EditText ccnEditText, expDateEditText, cvvEditText, cardNickNameEditText;
     TextView selectedImageNameTextView;
     ImageView masterCardImageView, visaCardImageView;
+    ProgressBar progressBar;
+
 
     // ProgressDialog to be displayed when mapping and pre-processing has started
     ProgressDialog progressDialog_preprocessing;
@@ -103,6 +115,12 @@ public class AddCard extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.add_card_final);
 
+         retrofit = new Retrofit.Builder()
+                .baseUrl(BASE_URL)
+                .addConverterFactory(GsonConverterFactory.create())
+                .client(getUnsafeOkHttpClient().build())
+                .build();
+
         // Objects instantiation
         addCardObj = new AddCard();
         stegoObj = new Steganography();
@@ -119,6 +137,9 @@ public class AddCard extends AppCompatActivity {
         masterCardImageView = (ImageView) findViewById(R.id.masterCardImageView);
         visaCardImageView = (ImageView) findViewById(R.id.visaCardImageView);
         cardNickNameEditText = (EditText) findViewById(R.id.cardNickNameEditText);
+        progressBar = (ProgressBar) findViewById(R.id.progressBar);
+
+        progressBar.setVisibility(View.GONE);
 
         // Instantiating progress dialog objects
         progressDialog_preprocessing = new ProgressDialog(this);
@@ -276,20 +297,13 @@ public class AddCard extends AppCompatActivity {
         // Sample creation
         db = new DataBaseHelper(this);
 
-//        String tokenFromSharedPrefs = getTokenFromSharedPrefs();
-//
-//        String userIDFromToken = getUserIDFromToken(tokenFromSharedPrefs);
-
-
-
-
 
 
     }
 
     public String getTokenFromSharedPrefs() {
 
-        sharedPreferences = getSharedPreferences(SHARED_PREFS, MODE_PRIVATE);
+        sharedPreferences = getSharedPreferences(SHARED_PREF_NAME, MODE_PRIVATE);
 
         String fromSharedPrefs = sharedPreferences.getString(JWT_TOKEN, "");
 
@@ -319,6 +333,9 @@ public class AddCard extends AppCompatActivity {
 
     public void addCardButtonOnClick() throws InterruptedException {
 
+        progressBar.setVisibility(View.VISIBLE);
+
+
         //Handler to handle returned message object from the background thread created for mapping
         myHandler = new Handler() {
             @Override
@@ -346,21 +363,25 @@ public class AddCard extends AppCompatActivity {
         if(ccnEditText.getText().toString().trim().replaceAll("\\s", "").length() != 16) {
             ccnEditText.setError("Enter your credit card number.");
             ccnEditText.requestFocus();
+            progressBar.setVisibility(View.GONE);
         }
 
         if(expDateEditText.getText().toString().trim().length() != 5) {
             expDateEditText.setError("Enter the expiry date.");
             expDateEditText.requestFocus();
+            progressBar.setVisibility(View.GONE);
         }
 
         if(cvvEditText.getText().toString().trim().length() != 3) {
             cvvEditText.setError("Enter the CVV.");
             cvvEditText.requestFocus();
+            progressBar.setVisibility(View.GONE);
         }
 
         if(cardNickNameEditText.getText().toString().trim().length() == 0) {
             cardNickNameEditText.setError("Give your card a nickname.");
             cardNickNameEditText.requestFocus();
+            progressBar.setVisibility(View.GONE);
         }
 
         // Check if an image is selected and is StegoPay ready
@@ -388,6 +409,7 @@ public class AddCard extends AppCompatActivity {
             // new Thread(new mapping_background(ccDetailsBinaryString)).start();
 
         } else {
+            progressBar.setVisibility(View.GONE);
             //Alert dialog to inform the user, that a image isnt selected
             new AlertDialog.Builder(AddCard.this)
                     .setTitle("Fill the form!")
@@ -412,26 +434,24 @@ public class AddCard extends AppCompatActivity {
         byte[] coverImageBytes = convertBitmapToByteArray();
         String coverImageEncoded = Base64.encodeToString(coverImageBytes, Base64.DEFAULT);
 
-      //  System.out.println("img:" + coverImageEncoded);
-        System.out.println(last4Digits + " " + " " + nickName);
+        System.out.println(last4Digits + " " + nickName);
 
-        Card card = new Card(nickName, coverImageEncoded, mappingKey, stegoObj.check_image_validity, last4Digits);
+        Card card = new Card(nickName, coverImageEncoded, mappingKey, stegoObj.getHashMap_1(), last4Digits);
 
-        String token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MDJmYTk2OTAwNjE5ZjU2MzhmMDVlZTciLCJpYXQiOjE2MTM3MzY2NjR9.eZBq_r2T2ek5kI3zc_jIudoIoGCxMP2PNOgZcpzDAqM";
+        addCardRequest(card);
 
-        String finalJWT = "Bearer " + token;
 
-        Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("https://10.0.2.2:3443/")
-                .addConverterFactory(GsonConverterFactory.create())
-                .client(getUnsafeOkHttpClient().build())
-                .build();
+    }
+
+    public void addCardRequest(Card card) {
 
         StegoPayApi stegoPayApi = retrofit.create(StegoPayApi.class);
 
-        Call<Card> call = stegoPayApi.createCard(finalJWT, card);
+        String tokenFromSharedPrefs = getTokenFromSharedPrefs();
 
-        String userIDFromToken = getUserIDFromToken(token);
+        Call<Card> call = stegoPayApi.createCard("Bearer " + tokenFromSharedPrefs, card);
+
+        String userIDFromToken = getUserIDFromToken(tokenFromSharedPrefs);
 
 
         call.enqueue(new Callback<Card>() {
@@ -444,12 +464,15 @@ public class AddCard extends AppCompatActivity {
 
                 Card cardResponse = response.body();
 
-                String hashMap1String = convertHashMapToString(cardResponse.getHashMap_1());
-                String hashMap2String = convertHashMapToString(stegoObj.valid_pixels_in_binary);
+                String hashMap1String = convertHashMapToString(card.getHashMap_1());
 
-                db.addCard(userIDFromToken, cardResponse.getCardID(), cardResponse.getNickName(), cardResponse.getImage(), hashMap1String, hashMap2String, cardResponse.getLast4Digits());
+                db.addCard(userIDFromToken, cardResponse.getCardID(), card.getNickName(), card.getImage(), hashMap1String, card.getLast4Digits());
 
-                System.out.println("Should be done.");
+                progressBar.setVisibility(View.GONE);
+
+                Intent i = new Intent(getApplicationContext(), ViewCards.class);
+                startActivity(i);
+
 
             }
 
@@ -461,8 +484,6 @@ public class AddCard extends AppCompatActivity {
                 System.out.println(t.getMessage());
             }
         });
-
-
     }
 
     //Converting a hashmap to string

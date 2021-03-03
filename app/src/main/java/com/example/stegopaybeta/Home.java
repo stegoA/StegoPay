@@ -2,10 +2,14 @@ package com.example.stegopaybeta;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.util.Base64;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -26,20 +30,36 @@ import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 
-import okhttp3.Interceptor;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
+
+import de.hdodenhof.circleimageview.CircleImageView;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
+import static com.example.stegopaybeta.StegoPayUtils.BASE_URL;
+import static com.example.stegopaybeta.StegoPayUtils.JWT_TOKEN;
+import static com.example.stegopaybeta.StegoPayUtils.SHARED_PREF_NAME;
+import static com.example.stegopaybeta.StegoPayUtils.getUnsafeOkHttpClient;
+import static com.example.stegopaybeta.StegoPayUtils.getUserIDFromToken;
+
 public class Home extends AppCompatActivity {
 
+    @Override
+    public void onBackPressed() {
+        //super.onBackPressed();
+    }
+
+    // Views
     ListView lv_transactions;
     Button addCardButton, viewCardsButton;
     TextView userGreetingTextView;
+    CircleImageView profileImageView;
+    ProgressBar progressBar;
+
+
+    Retrofit retrofit;
 
     TransactionAdapter transactionAdapter;
     ArrayList<Transaction> transactionList = new ArrayList<>();
@@ -47,52 +67,48 @@ public class Home extends AppCompatActivity {
     SharedPreferences sharedPreferences;
     DataBaseHelper dataBaseHelper;
 
-    public static final String SHARED_PREFS = "sharedPrefs";
-    public static final String JWT_TOKEN = "JWT_TOKEN";
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.home);
 
-
+        // Initializing views
         lv_transactions = (ListView) findViewById(R.id.transactionsListView);
         addCardButton = (Button) findViewById(R.id.addCardButton);
         viewCardsButton = (Button) findViewById(R.id.viewCardsButton);
         userGreetingTextView = (TextView) findViewById(R.id.userGreetingTextView);
+        profileImageView = (CircleImageView) findViewById(R.id.profileImageView);
+        progressBar = (ProgressBar) findViewById(R.id.progressBar);
 
-        
-        // populateActivityListView
-
-        // Initializing shared prefs
-        sharedPreferences = getSharedPreferences(SHARED_PREFS, MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-
-        // Sample JWT Token 
-        String token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MDJmYTk2OTAwNjE5ZjU2MzhmMDVlZTciLCJpYXQiOjE2MTM3MzY2NjR9.eZBq_r2T2ek5kI3zc_jIudoIoGCxMP2PNOgZcpzDAqM";
-
-        // Inserting JWT token into shared prefs
-        editor.putString(JWT_TOKEN, token);
-        editor.apply();
+        progressBar.setVisibility(View.VISIBLE);
 
 
+        retrofit = new Retrofit.Builder()
+                .baseUrl(BASE_URL)
+                .addConverterFactory(GsonConverterFactory.create())
+                .client(getUnsafeOkHttpClient().build())
+                .build();
+
+        sharedPreferences = getSharedPreferences(SHARED_PREF_NAME, MODE_PRIVATE);
+
+        dataBaseHelper = new DataBaseHelper(Home.this);
+
+
+        // Getting the JWT token from shared preferences
         String tokenFromSharedPrefs = getTokenFromSharedPrefs();
 
+        // Getting the user's ID from the JWT token
         String userIdFromToken = getUserIDFromToken(tokenFromSharedPrefs);
 
-        setUserGreetingTextView(userIdFromToken);
+        // Get user details from SQLite
+        getUserDetails(userIdFromToken);
+
 
        //  dataBaseHelper.dropTable(userIdFromToken);
 
+        getTransactionsFromServer(tokenFromSharedPrefs);
 
-
-//        UserProfileModel userProfileModel = new UserProfileModel(userIdFromToken, "Albert", "Einstein", "nuclear@gmail.com");
-//        boolean success = dataBaseHelper.addUserProfile(userProfileModel);
-//        System.out.println("Success = " + success);
-        
-
-        populateActivityListView(token);
 
 
         addCardButton.setOnClickListener(new View.OnClickListener() {
@@ -114,67 +130,54 @@ public class Home extends AppCompatActivity {
         });
 
 
-
+        profileImageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(Home.this, Profile.class);
+                startActivity(intent);
+            }
+        });
 
     }
-
 
 
 
     public String getTokenFromSharedPrefs() {
-
-        String fromSharedPrefs = sharedPreferences.getString(JWT_TOKEN, "");
-
-    //    System.out.println("The token I got from sharedPrefs is: " + fromSharedPrefs);
-
+        String fromSharedPrefs = sharedPreferences.getString("Token", "");
         return fromSharedPrefs;
-
     }
 
 
-    public static String getUserIDFromToken(String token) {
-        JWT jwt = new JWT(token);
-        Claim claim = jwt.getClaim("_id");
-        String userIdFromJWTToken = claim.asString();
+    public void getUserDetails(String userID) {
 
-       // System.out.println("The user id i got from the JWT token is: " + claim.asString());
+        String firstName = dataBaseHelper.getUserFirstName(userID);
+        String profileImage = dataBaseHelper.getUserProfileImage(userID);
 
-        return userIdFromJWTToken;
-    }
-
-
-    public void setUserGreetingTextView(String userIdFromToken) {
-
-        dataBaseHelper = new DataBaseHelper(Home.this);
-
-        UserProfileModel userProfile = dataBaseHelper.getUserProfile(userIdFromToken);
-
-        if (userProfile.getUserID().equals(userIdFromToken)) {
-            System.out.println("Found: " + userProfile.getUserID());
-            userGreetingTextView.setText("Hello, " + userProfile.getFirstName() + "!");
-            dataBaseHelper.create_Users_Cards_Table(userIdFromToken);
-        } else {
-            Toast.makeText(getApplicationContext(), "Error retrieving profile.", Toast.LENGTH_SHORT).show();
-            // Send to login screen
+        if (firstName != "N/A") {
+            setUserGreetingTextView(firstName);
         }
 
-
+        if (profileImage != "N/A") {
+            setUserProfileImage(profileImage);
+        }
     }
 
 
-    public void populateActivityListView(String jwt) {
+    public void setUserGreetingTextView(String userFirstName) {
+        userGreetingTextView.setText("Hello, " + userFirstName + "!");
+    }
 
-        String finalJWT = "Bearer " + jwt;
+    public void setUserProfileImage(String profileImage) {
+            byte[] decode = Base64.decode(profileImage, Base64.DEFAULT);
+            Bitmap decodedProfilePicture = BitmapFactory.decodeByteArray(decode, 0, decode.length);
+            profileImageView.setImageBitmap(decodedProfilePicture);
+    }
 
-        Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("https://10.0.2.2:3443/")
-                .addConverterFactory(GsonConverterFactory.create())
-                .client(getUnsafeOkHttpClient().build())
-                .build();
+    public void getTransactionsFromServer(String token) {
 
         StegoPayApi stegoPayApi = retrofit.create(StegoPayApi.class);
 
-        Call<List<Transaction>> call = stegoPayApi.getAllTransactions(finalJWT);
+        Call<List<Transaction>> call = stegoPayApi.getAllTransactions( "Bearer " + token);
 
         call.enqueue(new Callback<List<Transaction>>() {
             @Override
@@ -187,72 +190,29 @@ public class Home extends AppCompatActivity {
                 List<Transaction> transactions = response.body();
 
                 for (Transaction transaction: transactions) {
-                    Transaction transactionObj = new Transaction(transaction.getVendor(), transaction.getAmount(), transaction.getCardID());
+                    Transaction transactionObj = new Transaction(transaction.getVendor(), transaction.getAmount(), transaction.getCardID(), transaction.getDate());
                     transactionList.add(transactionObj);
                 }
 
-                transactionAdapter = new TransactionAdapter(getApplicationContext(), transactionList);
-                lv_transactions.setAdapter(transactionAdapter);
+                populateActivityListView();
 
             }
 
             @Override
             public void onFailure(Call<List<Transaction>> call, Throwable t) {
-            Toast.makeText(getApplicationContext(), t.getMessage(), Toast.LENGTH_LONG).show();
+                Toast.makeText(getApplicationContext(), t.getMessage(), Toast.LENGTH_LONG).show();
                 System.out.println(t.getMessage());
             }
         });
+    }
+
+
+    public void populateActivityListView() {
+        transactionAdapter = new TransactionAdapter(getApplicationContext(), transactionList);
+        lv_transactions.setAdapter(transactionAdapter);
+        progressBar.setVisibility(View.GONE);
+    }
 
 
     }
 
-
-    public static OkHttpClient.Builder getUnsafeOkHttpClient() {
-        try {
-            // Create a trust manager that does not validate certificate chains
-            final TrustManager[] trustAllCerts = new TrustManager[]{
-                    new X509TrustManager() {
-                        @Override
-                        public void checkClientTrusted(java.security.cert.X509Certificate[] chain, String authType) throws CertificateException {
-                        }
-
-                        @Override
-                        public void checkServerTrusted(java.security.cert.X509Certificate[] chain, String authType) throws CertificateException {
-                        }
-
-                        @Override
-                        public java.security.cert.X509Certificate[] getAcceptedIssuers() {
-                            return new java.security.cert.X509Certificate[]{};
-                        }
-                    }
-            };
-
-            // Install the all-trusting trust manager
-            final SSLContext sslContext = SSLContext.getInstance("SSL");
-            sslContext.init(null, trustAllCerts, new java.security.SecureRandom());
-
-            // Create an ssl socket factory with our all-trusting manager
-            final SSLSocketFactory sslSocketFactory = sslContext.getSocketFactory();
-
-            OkHttpClient.Builder builder = new OkHttpClient.Builder();
-            builder.sslSocketFactory(sslSocketFactory, (X509TrustManager) trustAllCerts[0]);
-            builder.hostnameVerifier(new HostnameVerifier() {
-                @Override
-                public boolean verify(String hostname, SSLSession session) {
-                    return true;
-                }
-            });
-            return builder;
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-
-
-
-
-
-
-
-}

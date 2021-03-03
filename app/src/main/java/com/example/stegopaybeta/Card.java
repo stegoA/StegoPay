@@ -16,22 +16,25 @@ public class Card {
     private HashMap<Integer, String> hashMap_1;
     private HashMap<String, String> hashMap_2;
 
+    // For POST request to server (addCard)
     public Card(String nickName, String image, String mappingKey, HashMap<Integer, String> hashMap_1, String last4Digits) {
-        this.nickName = nickName;
-        this.image = image;
-        this.mappingKey = mappingKey;
-        this.last4Digits = last4Digits;
-        this.hashMap_1 = hashMap_1;
+    this.nickName = nickName;
+    this.image = image;
+    this.mappingKey = mappingKey;
+    this.hashMap_1 = hashMap_1;
+    this.last4Digits = last4Digits;
     }
 
-    public Card(String cardID, String nickName, String image, HashMap<Integer, String> hashMap_1, HashMap<String, String> hashMap_2, String last4Digits) {
+// For SQLite
+    public Card(String cardID, String nickName, HashMap<Integer, String> hashMap_1, String image, String last4Digits) {
         this.cardID = cardID;
         this.nickName = nickName;
         this.image = image;
-        this.last4Digits = last4Digits;
         this.hashMap_1 = hashMap_1;
-        this.hashMap_2 = hashMap_2;
+        this.last4Digits = last4Digits;
     }
+
+
 
     public String getCardID() {
         return cardID;

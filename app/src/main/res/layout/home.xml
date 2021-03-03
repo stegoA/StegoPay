@@ -32,14 +32,15 @@
                 android:layout_marginTop="85dp"
                 android:background="@drawable/bottom_rounded_rectangle" />
 
-            <View
-                android:id="@+id/ellipse_3"
-                android:layout_width="42dp"
-                android:layout_height="42dp"
+
+            <de.hdodenhof.circleimageview.CircleImageView
+                android:id="@+id/profileImageView"
                 android:layout_alignParentLeft="true"
                 android:layout_marginLeft="350dp"
                 android:layout_alignParentTop="true"
                 android:layout_marginTop="10dp"
+                android:layout_width="42dp"
+                android:layout_height="42dp"
                 android:background="@drawable/profile_picture_ellipse"
                 />
 
@@ -191,6 +192,15 @@
         android:layout_marginRight="25dp"
         android:layout_height="295dp" />
 
+    <ProgressBar
+        android:layout_below="@id/viewCardsButton"
+        android:id="@+id/progressBar"
+        android:layout_width="200dp"
+        android:layout_height="200dp"
+        android:layout_centerInParent="true"
+        android:layout_marginTop="70dp"
+        android:indeterminateTint="@color/gradient_purple"
+        />
 
 
 </RelativeLayout>

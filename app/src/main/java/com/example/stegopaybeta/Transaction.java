@@ -6,14 +6,20 @@ public class Transaction {
 
     @SerializedName("store")
     private String vendor;
-    private double amount;
+    private String _id;
+    private String amount;
     private String cardID;
+    private String date;
 
-    public Transaction(String vendor, double amount, String cardID) {
+    public Transaction(String vendor, String amount, String cardID, String date) {
         this.vendor = vendor;
         this.amount = amount;
         this.cardID = cardID;
+        this.date = date;
     }
+
+
+
 
     public String getVendor() {
         return vendor;
@@ -23,11 +29,19 @@ public class Transaction {
         this.vendor = vendor;
     }
 
-    public double getAmount() {
+    public String get_id() {
+        return _id;
+    }
+
+    public void set_id(String _id) {
+        this._id = _id;
+    }
+
+    public String getAmount() {
         return amount;
     }
 
-    public void setAmount(double amount) {
+    public void setAmount(String amount) {
         this.amount = amount;
     }
 
@@ -37,5 +51,13 @@ public class Transaction {
 
     public void setCardID(String cardID) {
         this.cardID = cardID;
+    }
+
+    public String getDate() {
+        return date;
+    }
+
+    public void setDate(String date) {
+        this.date = date;
     }
 }
