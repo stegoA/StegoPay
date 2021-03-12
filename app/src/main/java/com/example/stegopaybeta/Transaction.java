@@ -4,18 +4,20 @@ import com.google.gson.annotations.SerializedName;
 
 public class Transaction {
 
-    @SerializedName("store")
     private String vendor;
     private String _id;
     private String amount;
+    @SerializedName("card")
     private String cardID;
     private String date;
+    private String currency;
 
-    public Transaction(String vendor, String amount, String cardID, String date) {
+    public Transaction(String vendor, String amount, String cardID, String date, String currency) {
         this.vendor = vendor;
         this.amount = amount;
         this.cardID = cardID;
         this.date = date;
+        this.currency = currency;
     }
 
 
@@ -60,4 +62,8 @@ public class Transaction {
     public void setDate(String date) {
         this.date = date;
     }
+
+    public String getCurrency() { return currency; }
+
+    public void setCurrency(String currency) { this.currency = currency; }
 }

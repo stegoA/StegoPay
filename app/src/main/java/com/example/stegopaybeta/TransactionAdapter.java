@@ -39,7 +39,8 @@ public class TransactionAdapter extends ArrayAdapter<Transaction> {
        vendor.setText(currentTransaction.getVendor());
 
        TextView amount = (TextView) listItem.findViewById(R.id.tv_amount);
-       amount.setText( "- " + currentTransaction.getAmount());
+       String amount_with_currency = currentTransaction.getCurrency() + " - "+currentTransaction.getAmount();
+       amount.setText(amount_with_currency);
 
        return listItem;
 

@@ -1,4 +1,4 @@
-package com.example.stegopaybeta;
+ package com.example.stegopaybeta;
 
 import android.Manifest;
 import android.app.AlertDialog;
@@ -55,12 +55,6 @@ import static com.example.stegopaybeta.StegoPayUtils.getUserIDFromToken;
 
 public class AddCard extends AppCompatActivity {
 
-    @Override
-    public void onBackPressed() {
-        Intent i = new Intent(getApplicationContext(), Home.class);
-        startActivity(i);
-        //super.onBackPressed();
-    }
 
     SharedPreferences sharedPreferences;
 
@@ -73,6 +67,8 @@ public class AddCard extends AppCompatActivity {
 
     // Storage permission code
     private int STORAGE_PERMISSION_CODE = 1;
+
+    private final int VIEW_CARDS_REQUEST_CODE = 10;
 
     // Object declaration
     AddCard addCardObj;
@@ -301,6 +297,7 @@ public class AddCard extends AppCompatActivity {
 
     }
 
+
     public String getTokenFromSharedPrefs() {
 
         sharedPreferences = getSharedPreferences(SHARED_PREF_NAME, MODE_PRIVATE);
@@ -349,11 +346,11 @@ public class AddCard extends AppCompatActivity {
                 mappingKey = (String) msg.obj;
 
                 //Mapping key generated
-                System.out.println("Mapping Key : " + mappingKey);
+                //System.out.println("Mapping Key : " + mappingKey);
 
                 //Printing the number of mappings generated
-                String[] mappings = mappingKey.split(";");
-                System.out.println("Number of mappings : " + mappings.length);
+                //String[] mappings = mappingKey.split(";");
+                //System.out.println("Number of mappings : " + mappings.length);
 
                 createCard(mappingKey);
 
@@ -458,20 +455,18 @@ public class AddCard extends AppCompatActivity {
             @Override
             public void onResponse(Call<Card> call, Response<Card> response) {
                 if (!response.isSuccessful()) {
-                    System.out.println("HTTP Code: " + response.code() + " " + response.message());
+                    System.out.println("HTTP Code:   " + response.code() + " " + response.message());
                     return;
                 }
 
                 Card cardResponse = response.body();
 
-                String hashMap1String = convertHashMapToString(card.getHashMap_1());
-
-                db.addCard(userIDFromToken, cardResponse.getCardID(), card.getNickName(), card.getImage(), hashMap1String, card.getLast4Digits());
+                db.addCard(userIDFromToken, cardResponse.getCardID(), card.getNickName(), card.getLast4Digits());
 
                 progressBar.setVisibility(View.GONE);
 
                 Intent i = new Intent(getApplicationContext(), ViewCards.class);
-                startActivity(i);
+                startActivityForResult(i, VIEW_CARDS_REQUEST_CODE);
 
 
             }
@@ -502,7 +497,6 @@ public class AddCard extends AppCompatActivity {
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         coverImage.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOutputStream);
         byte[] byteArray = byteArrayOutputStream.toByteArray();
-
         return byteArray;
     }
 
@@ -673,6 +667,9 @@ public class AddCard extends AppCompatActivity {
             }
             //Execute AsyncTask for pre-processing the image
             new preprocessing().execute(temp);
+        }
+        if(requestCode == VIEW_CARDS_REQUEST_CODE && resultCode == RESULT_OK){
+            finish();
         }
     }
 

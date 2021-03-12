@@ -3,6 +3,7 @@ package com.example.stegopaybeta;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.widget.ArrayAdapter;
 
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
@@ -10,13 +11,14 @@ import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Random;
 import java.util.Set;
 import java.util.TreeMap;
-
-
+import java.util.concurrent.TimeUnit;
 
 
 public class Steganography {
@@ -159,7 +161,6 @@ public class Steganography {
 
     //Updated preprocessing without sets
     public void preProcessing2(){
-
         //Get width and height of the image
         final int width = image.getWidth();
         final int height = image.getHeight();
@@ -353,6 +354,10 @@ public class Steganography {
         //To store the mapping key
         String mappingKey = "";
 
+        //Temp hashmap, to store the pixel location and its RGB value
+        //So that the image is not visited every time to get a pixel
+        HashMap<String, String> tempHashMap_2 = new HashMap<String, String>();
+
         //While all the bits are not mapped
         while (number_of_bits_done != total_number_of_bits_to_map) {
 
@@ -381,33 +386,39 @@ public class Steganography {
             //Get the appropriate pixel location from the hashmap which stores the 8 three bit combinations, with the pixel location
             String pixelLocation_to_match_in = check_image_validity.get(secretMessagePattern_Decimal);
 
-            //Splitting the pixel location by delimitier X to get row and column of the pixel
-            String[] pixels = pixelLocation_to_match_in.split("X");
+            String pixel_to_match_in = "";
+            if(!(tempHashMap_2.containsKey(pixelLocation_to_match_in))) {
+                //Splitting the pixel location by delimitier X to get row and column of the pixel
+                String[] pixels = pixelLocation_to_match_in.split("X");
 
-            //Row and column pixels of the pixel location
-            int rowPixel = Integer.parseInt(pixels[0]);
-            int colPixel = Integer.parseInt(pixels[1]);
+                //Row and column pixels of the pixel location
+                int rowPixel = Integer.parseInt(pixels[0]);
+                int colPixel = Integer.parseInt(pixels[1]);
 
-            //Getting the pixel at the location
-            int colour = image.getPixel(colPixel, rowPixel);
-            int red = Color.red(colour);
-            int blue = Color.blue(colour);
-            int green = Color.green(colour);
+                //Getting the pixel at the location
+                int colour = image.getPixel(colPixel, rowPixel);
+                int red = Color.red(colour);
+                int blue = Color.blue(colour);
+                int green = Color.green(colour);
 
-            //Converting the pixel to binary
-            String redBinary = Integer.toBinaryString(red);
-            redBinary = String.format("%8s", redBinary).replace(' ', '0');
+                //Converting the pixel to binary
+                String redBinary = Integer.toBinaryString(red);
+                redBinary = String.format("%8s", redBinary).replace(' ', '0');
 
-            String greenBinary = Integer.toBinaryString(green);
-            greenBinary = String.format("%8s", greenBinary).replace(' ', '0');
+                String greenBinary = Integer.toBinaryString(green);
+                greenBinary = String.format("%8s", greenBinary).replace(' ', '0');
 
-            String blueBinary = Integer.toBinaryString(blue);
-            blueBinary = String.format("%8s", blueBinary).replace(' ', '0');
+                String blueBinary = Integer.toBinaryString(blue);
+                blueBinary = String.format("%8s", blueBinary).replace(' ', '0');
 
-            //Pixel to match in is red binary + green binary + blue binary
-            String pixel_to_match_in = redBinary + greenBinary + blueBinary;
+                //Pixel to match in is red binary + green binary + blue binary
+                pixel_to_match_in = redBinary + greenBinary + blueBinary;
 
-            //System.out.println("Pixel to match in : " + pixel_to_match_in);
+                tempHashMap_2.put(pixelLocation_to_match_in,pixel_to_match_in);
+            }
+            else{
+                pixel_to_match_in = tempHashMap_2.get(pixelLocation_to_match_in);
+            }
 
             //Setting counter to go through the pixel
             int i = 0;
@@ -515,6 +526,10 @@ public class Steganography {
         //To store the mapping key
         String mappingKey = "";
 
+        //Temp hashmap, to store the pixel location and its RGB value
+        //So that the image is not visited every time to get a pixel
+        HashMap<String, String> tempHashMap_2 = new HashMap<String, String>();
+
         //While all the bits are not mapped
         while (number_of_bits_done != total_number_of_bits_to_map) {
 
@@ -547,31 +562,40 @@ public class Steganography {
             //Get the appropriate pixel location from the hashmap which stores the 8 three bit combinations, with the pixel location
             String pixelLocation_to_match_in = hashMap_1.get(secretMessagePattern_Decimal);
 
-            //Splitting the pixel location by delimitier X to get row and column of the pixel
-            String[] pixels = pixelLocation_to_match_in.split("X");
+            String pixel_to_match_in = "";
 
-            //Row and column pixels of the pixel location
-            int rowPixel = Integer.parseInt(pixels[0]);
-            int colPixel = Integer.parseInt(pixels[1]);
+            if(!(tempHashMap_2.containsKey(pixelLocation_to_match_in))) {
+                //Splitting the pixel location by delimitier X to get row and column of the pixel
+                String[] pixels = pixelLocation_to_match_in.split("X");
 
-            //Getting the pixel at the location
-            int colour = Image.getPixel(colPixel, rowPixel);
-            int red = Color.red(colour);
-            int blue = Color.blue(colour);
-            int green = Color.green(colour);
+                //Row and column pixels of the pixel location
+                int rowPixel = Integer.parseInt(pixels[0]);
+                int colPixel = Integer.parseInt(pixels[1]);
 
-            //Converting the pixel to binary
-            String redBinary = Integer.toBinaryString(red);
-            redBinary = String.format("%8s", redBinary).replace(' ', '0');
+                //Getting the pixel at the location
+                int colour = Image.getPixel(colPixel, rowPixel);
+                int red = Color.red(colour);
+                int blue = Color.blue(colour);
+                int green = Color.green(colour);
 
-            String greenBinary = Integer.toBinaryString(green);
-            greenBinary = String.format("%8s", greenBinary).replace(' ', '0');
+                //Converting the pixel to binary
+                String redBinary = Integer.toBinaryString(red);
+                redBinary = String.format("%8s", redBinary).replace(' ', '0');
 
-            String blueBinary = Integer.toBinaryString(blue);
-            blueBinary = String.format("%8s", blueBinary).replace(' ', '0');
+                String greenBinary = Integer.toBinaryString(green);
+                greenBinary = String.format("%8s", greenBinary).replace(' ', '0');
 
-            //Pixel to match in is red binary + green binary + blue binary
-            String pixel_to_match_in = redBinary + greenBinary + blueBinary;
+                String blueBinary = Integer.toBinaryString(blue);
+                blueBinary = String.format("%8s", blueBinary).replace(' ', '0');
+
+                //Pixel to match in is red binary + green binary + blue binary
+                pixel_to_match_in = redBinary + greenBinary + blueBinary;
+
+                tempHashMap_2.put(pixelLocation_to_match_in,pixel_to_match_in);
+            }
+            else{
+                pixel_to_match_in = tempHashMap_2.get(pixelLocation_to_match_in);
+            }
 
             //Setting counter to go through the pixel
             int i = 0;
@@ -880,6 +904,10 @@ public class Steganography {
         //Getting each mapping by splitting using the semi colon delimiter
         String[] mappings = mappingKey.split(";");
 
+        //Temp hashmap to store pixel location as key , and its RGB values in binary
+        //to make sure that the image is not visited every time to get the RGB values in binary.
+        HashMap<String, String> tempHashMap_2 = new HashMap<>();
+
         //To store the decoded binary text
         String decodingBinary = "";
 
@@ -899,25 +927,38 @@ public class Steganography {
             //Number of bits done in a round is the 1st mapping key component
             int numberOfBits = Integer.parseInt(singleMapping[0]);
 
-            //Row and column pixels of the pixel location
-            int rowPixel = Integer.parseInt(pixels[0]);
-            int colPixel = Integer.parseInt(pixels[1]);
+            String pixel = "";
 
-            int colour = Image.getPixel(colPixel, rowPixel);
-            int red = Color.red(colour);
-            int blue = Color.blue(colour);
-            int green = Color.green(colour);
+            //Check if pixel is not in temp hashmap
+            if(!(tempHashMap_2.containsKey(singleMapping[2]))) {
+                //Row and column pixels of the pixel location
+                int rowPixel = Integer.parseInt(pixels[0]);
+                int colPixel = Integer.parseInt(pixels[1]);
 
-            String redBinary = Integer.toBinaryString(red);
-            redBinary = String.format("%8s", redBinary).replace(' ', '0');
+                //Get RGB
+                int colour = Image.getPixel(colPixel, rowPixel);
+                int red = Color.red(colour);
+                int blue = Color.blue(colour);
+                int green = Color.green(colour);
 
-            String greenBinary = Integer.toBinaryString(green);
-            greenBinary = String.format("%8s", greenBinary).replace(' ', '0');
+                //Convert RGB values to binary
+                String redBinary = Integer.toBinaryString(red);
+                redBinary = String.format("%8s", redBinary).replace(' ', '0');
 
-            String blueBinary = Integer.toBinaryString(blue);
-            blueBinary = String.format("%8s", blueBinary).replace(' ', '0');
+                String greenBinary = Integer.toBinaryString(green);
+                greenBinary = String.format("%8s", greenBinary).replace(' ', '0');
 
-            String pixel = redBinary + greenBinary + blueBinary;
+                String blueBinary = Integer.toBinaryString(blue);
+                blueBinary = String.format("%8s", blueBinary).replace(' ', '0');
+
+                pixel = redBinary + greenBinary + blueBinary;
+
+                //add pixel to temp hashmap 2
+                tempHashMap_2.put(singleMapping[2], pixel);
+            }
+            else{
+                pixel = tempHashMap_2.get(singleMapping[2]);
+            }
 
             //System.out.println("Pixel : " + pixel);
             decodingBinary += pixel.substring(startingFrom, startingFrom + numberOfBits);

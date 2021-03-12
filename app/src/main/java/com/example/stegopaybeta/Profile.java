@@ -24,13 +24,6 @@ import static com.example.stegopaybeta.StegoPayUtils.getUserIDFromToken;
 
 public class Profile extends AppCompatActivity {
 
-    @Override
-    public void onBackPressed() {
-        Intent i = new Intent(getApplicationContext(), Home.class);
-        startActivity(i);
-        //super.onBackPressed();
-    }
-
     //Local database
     DataBaseHelper stegoPayDB;
 
@@ -63,6 +56,7 @@ public class Profile extends AppCompatActivity {
 
         sharedPreferences = getSharedPreferences(SHARED_PREF_NAME, MODE_PRIVATE);
 
+        /* IN ON RESUME
         // Get JWT token from shared preferences
         String tokenFromSharedPrefs = getTokenFromSharedPrefs();
 
@@ -73,7 +67,7 @@ public class Profile extends AppCompatActivity {
         Cursor cursor = getUserFromSQLite(userIDFromToken);
 
         // Set user profile details
-        setUserProfileDetails(cursor);
+        setUserProfileDetails(cursor);*/
 
         editProfile.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -85,6 +79,22 @@ public class Profile extends AppCompatActivity {
         });
 
 
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // Get JWT token from shared preferences
+        String tokenFromSharedPrefs = getTokenFromSharedPrefs();
+
+        // Decode JWT Token to get the user ID
+        String userIDFromToken = getUserIDFromToken(tokenFromSharedPrefs);
+
+        // Get the user's profile from SQLite
+        Cursor cursor = getUserFromSQLite(userIDFromToken);
+
+        // Set user profile details
+        setUserProfileDetails(cursor);
     }
 
     public void setUserProfileDetails(Cursor cursor) {

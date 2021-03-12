@@ -68,7 +68,6 @@ public class SignUp extends AppCompatActivity
         //initialize db class
         stegoPayDB = new DataBaseHelper(this);
 
-
         firstName = (EditText) findViewById(R.id.firstNameEditText);
         lastName = (EditText) findViewById(R.id.lastNameEditText);
         emailAddress = (EditText) findViewById(R.id.emailAddressEditText);

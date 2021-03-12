@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -21,11 +22,12 @@ import static com.example.stegopaybeta.StegoPayUtils.getUserIDFromToken;
 
 public class ViewCards extends AppCompatActivity {
 
+
     @Override
     public void onBackPressed() {
-        Intent i = new Intent(getApplicationContext(), Home.class);
-        startActivity(i);
-        //super.onBackPressed();
+        Intent i = new Intent();
+        setResult(RESULT_OK,i);
+        super.onBackPressed();
     }
 
     // ListView to display the user's cards
@@ -49,7 +51,7 @@ public class ViewCards extends AppCompatActivity {
 
         // Instantiating db
         db = new DataBaseHelper(this);
-
+        /*IN ON RESUME
         // Getting the JWT token from shared preferences
         String tokenFromSharedPrefs = getTokenFromSharedPrefs();
 
@@ -60,7 +62,7 @@ public class ViewCards extends AppCompatActivity {
         getCardsFromSQLite(userIDFromToken);
 
         // Populating the cards ListView
-        populateListView();
+        populateListView();*/
 
         lv_cards.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -75,8 +77,25 @@ public class ViewCards extends AppCompatActivity {
 
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // Getting the JWT token from shared preferences
+        String tokenFromSharedPrefs = getTokenFromSharedPrefs();
+
+        // Getting the user ID from the JWT token
+        String userIDFromToken = getUserIDFromToken(tokenFromSharedPrefs);
+
+        // Getting user cards from SQLite
+        getCardsFromSQLite(userIDFromToken);
+
+        // Populating the cards ListView
+        populateListView();
+    }
+
     // Method to get the user's card(s) from SQLite
     public void getCardsFromSQLite(String userID) {
+        System.out.println("VIEW CARDS: "+userID);
        allCards = db.getAllCards(userID);
     }
 

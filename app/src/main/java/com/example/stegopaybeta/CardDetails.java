@@ -7,6 +7,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.text.TextWatcher;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -15,6 +16,8 @@ import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Base64;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -50,6 +53,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
 import javax.net.ssl.HostnameVerifier;
@@ -67,6 +71,7 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
+import static com.example.stegopaybeta.CreditCardUtils.getCardType;
 import static com.example.stegopaybeta.StegoPayUtils.BASE_URL;
 import static com.example.stegopaybeta.StegoPayUtils.JWT_TOKEN;
 import static com.example.stegopaybeta.StegoPayUtils.SHARED_PREF_NAME;
@@ -74,12 +79,6 @@ import static com.example.stegopaybeta.StegoPayUtils.getUnsafeOkHttpClient;
 
 public class CardDetails extends AppCompatActivity {
 
-    @Override
-    public void onBackPressed() {
-        Intent i = new Intent(getApplicationContext(), ViewCards.class);
-        startActivity(i);
-        //super.onBackPressed();
-    }
 
     //Gallery Request Code, Storage permission code: used when user updates image of a card
     private final int GALLERY_REQUEST_CODE = 20;
@@ -142,10 +141,18 @@ public class CardDetails extends AppCompatActivity {
     //To check if key details (Card number, expiry, cvv) are updated
     boolean key_details_updated;
 
-    //Initializing some of the update dialog views
+    //Update card dialog Views (Views in update_card_dialog.xml)
+    private EditText et_nickName_update;
+    private EditText et_ccNumber_update;
+    private EditText et_expiry_update;
+    private EditText et_cvv_update;
+    Button bt_update_cover_image;
     private ImageView iv_coverImage_update;
     private ProgressBar progressBar_update;
     private TextView tv_progress_update;
+
+    // Boolean variable for credit card form validation
+    boolean isDelete;
 
 
     @Override
@@ -321,12 +328,12 @@ public class CardDetails extends AppCompatActivity {
         iv_coverImage.setBackground(drawable);
 
         //Initialize transaction adapter which appears on the screen, include only 3 transactions.
-        if(transactionsList.size()>=3) {
-            transactionAdapter = new TransactionAdapter(this, (ArrayList<Transaction>) transactionsList.subList(0, 3));
+        if (transactionsList.size() >= 3) {
+            transactionAdapter = new TransactionAdapter(this, new ArrayList<Transaction>(transactionsList.subList(0, 3)));
         }
         //If the total number of transactions are less than 3, then pass the entire list
-        else{
-            transactionAdapter = new TransactionAdapter(this,transactionsList);
+        else {
+            transactionAdapter = new TransactionAdapter(this, transactionsList);
         }
 
         //Set Adapter for the list view
@@ -367,13 +374,6 @@ public class CardDetails extends AppCompatActivity {
     //On Click of Update Card
     public void updateCard(View v) {
 
-        //Update card dialog Views (Views in update_card_dialog.xml)
-        EditText et_nickName_update;
-        EditText et_ccNumber_update;
-        EditText et_expiry_update;
-        EditText et_cvv_update;
-        Button bt_update_cover_image;
-
         //Initializing alert dialog, with update_card_dialog as its view
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         LayoutInflater inflater = getLayoutInflater();
@@ -391,7 +391,7 @@ public class CardDetails extends AppCompatActivity {
 
         //Setting the views to display the current card details
         et_nickName_update.setText(card.getNickName());
-        et_ccNumber_update.setText(ccNumber);
+        et_ccNumber_update.setText(formatCardNumber(ccNumber));
         et_expiry_update.setText(expiryDate);
         et_cvv_update.setText(cvv);
         iv_coverImage_update.setImageBitmap(coverImage);
@@ -401,88 +401,56 @@ public class CardDetails extends AppCompatActivity {
                 .setTitle("Update Card")
 
                 //On Click of update button on the dialog
-                .setPositiveButton("Update", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        //On Click of update
-                        //Progress bar to display updating
-
-                        //If card number, expiry, cvv were changed
-                        if (et_ccNumber_update.getText().toString() != ccNumber || et_expiry_update.getText().toString() != expiryDate || et_cvv_update.getText().toString() != cvv) {
-
-                            //Set key details updated to true
-                            key_details_updated = true;
-                        }
-
-                        //If key details were updated or image was updated, then need to remap the details
-                        if (key_details_updated || image_updated) {
-
-                            //If image is updated
-                            if(image_updated){
-                                //If image was updated set the hashmap 1 to the new hashmap 1
-                                card.setHashMap_1(steganography.getHashMap_1());
-
-                                //Set the cover image to the new selected image bitmap
-                                coverImage = steganography.getImage();
-                            }
-
-                            //Store updated details in the variables
-                            ccNumber = et_ccNumber_update.getText().toString();
-                            expiryDate = et_expiry_update.getText().toString();
-                            cvv = et_cvv_update.getText().toString();
-
-                            //Get updated details in binary
-                            String details = ccNumber + " " + expiryDate + " " + cvv;
-                            String detailsInBinary = StringconvertToBinary(details);
-
-                            System.out.println(card.getHashMap_1());
-
-                            //Map the updated details
-                            String updatedMappingKey = steganography.single_pattern_mapping(detailsInBinary, coverImage, card.getHashMap_1());
-
-                            //Set mapping key of the card object
-                            card.setMappingKey(updatedMappingKey);
-
-                            //Set the last 4 digits
-                            card.setLast4Digits(ccNumber.substring(ccNumber.length() - 4));
-
-                            //Set the updated cover image (By converting it to a Base64 string)
-                            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-                            coverImage.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOutputStream);
-                            byte[] coverImageByte = byteArrayOutputStream.toByteArray();
-                            String image_base64 = Base64.encodeToString(coverImageByte, Base64.DEFAULT);
-
-                            card.setImage(image_base64);
-                        }
-
-                        //Set the nickname
-                        card.setNickName(et_nickName_update.getText().toString());
-
-                        //Update details in MongoDB, and SQLite DB
-                        updateMongo();
-                        //updateSQLITE();
-
-                        //Set variables back to default values
-                        image_updated = false;
-                        key_details_updated = false;
-                        steganography.setImage(null);
-
-                        //Set the updated views
-                       // setViews();
-
-//                        //Hide the update_dialog progress bar
-                    }
-                })
+                .setPositiveButton("Update", null)
                 //On click of cancel button on the dialog
                 .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-
+                        //Set variables back to default values
+                        image_updated = false;
+                        key_details_updated = false;
+                        steganography.setImage(null);
                     }
                 });
 
         //Display the dialog
-        builder.show();
+        AlertDialog dialog = builder.show();
+
+        //Overriding positive button of alert dialog
+        Button positiveButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
+        positiveButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //On Click of update
+
+                //Check if no fields were left blank, length of the details entered is valid
+                boolean valid_details_entered = validateUpdateDialogForm();
+
+                //If valid details were entered
+                if (valid_details_entered) {
+                    //If card number, expiry, cvv were changed
+                    if (!(et_ccNumber_update.getText().toString().replaceAll("\\s", "").equals(ccNumber)) || !(et_expiry_update.getText().toString().equals(expiryDate)) || !(et_cvv_update.getText().toString().equals(cvv))) {
+
+                        //Set key details updated to true
+                        key_details_updated = true;
+
+                        System.out.println("Key details updated");
+
+                        //Store updated details in the variables
+                        ccNumber = et_ccNumber_update.getText().toString().replaceAll("\\s", "");
+                        expiryDate = et_expiry_update.getText().toString();
+                        cvv = et_cvv_update.getText().toString();
+                    }
+
+                    //Background thread to update card
+                    new update_card_background().execute();
+
+                    //Dismiss the dialog
+                    dialog.dismiss();
+
+                }
+            }
+        });
 
         //On Click of update cover image
         bt_update_cover_image.setOnClickListener(new View.OnClickListener() {
@@ -493,16 +461,226 @@ public class CardDetails extends AppCompatActivity {
             }
         });
 
+        // Credit card form validation (credit card number edit text)
+        et_ccNumber_update.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                if (before == 0) {
+                    isDelete = false;
+                } else {
+                    isDelete = true;
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                String sourceText = s.toString();
+
+                int length = sourceText.length();
+
+                StringBuilder stringBuilder = new StringBuilder();
+
+                stringBuilder.append(sourceText);
+
+                if (length > 0 && length % 5 == 0) {
+
+                    if (isDelete) {
+                        stringBuilder.deleteCharAt(length - 1);
+                    } else {
+                        stringBuilder.insert(length - 1, " ");
+                    }
+
+                    et_ccNumber_update.setText(stringBuilder);
+
+                    et_ccNumber_update.setSelection(et_ccNumber_update.getText().length());
+
+                }
+            }
+        });
+
+        // Credit card form validation (expiration date edit text)
+        et_expiry_update.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+                //Log.d("TAG", "onTextChanged: " + before);
+                if (before == 0) {
+                    isDelete = false;
+
+                } else {
+                    isDelete = true;
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                String source = s.toString();
+                int length = source.length();
+
+                StringBuilder stringBuilder = new StringBuilder();
+                stringBuilder.append(source);
+
+                if (length == 2) {
+                    if (isDelete) {
+                        stringBuilder.deleteCharAt(length - 1);
+                    } else {
+                        stringBuilder.append("/");
+                    }
+                    et_expiry_update.setText(stringBuilder);
+                    et_expiry_update.setSelection(et_expiry_update.getText().length());
+                }
+
+            }
+        });
+
+
+    }
+
+    private class update_card_background extends AsyncTask<Void, Void, Void> {
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            tv_progress.setText("Mapping");
+            tv_progress.setVisibility(View.VISIBLE);
+            progressBar.setVisibility(View.VISIBLE);
+        }
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+
+            //If key details were updated or image was updated, then need to remap the details
+            if (key_details_updated || image_updated) {
+
+                //If image is updated
+                if (image_updated) {
+                    //If image was updated set the hashmap 1 to the new hashmap 1
+                    card.setHashMap_1(steganography.getHashMap_1());
+
+                    //Set the cover image to the new selected image bitmap
+                    coverImage = steganography.getImage();
+
+                    //Set the updated cover image (By converting it to a Base64 string)
+                    ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+                    coverImage.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOutputStream);
+                    byte[] coverImageByte = byteArrayOutputStream.toByteArray();
+                    String image_base64 = Base64.encodeToString(coverImageByte, Base64.DEFAULT);
+
+                    card.setImage(image_base64);
+                }
+
+                //Get updated details in binary
+                String details = ccNumber + " " + expiryDate + " " + cvv;
+                String detailsInBinary = StringconvertToBinary(details);
+
+                //Map the updated details
+                String updatedMappingKey = steganography.single_pattern_mapping(detailsInBinary, coverImage, card.getHashMap_1());
+
+                //Set mapping key of the card object
+                card.setMappingKey(updatedMappingKey);
+
+                //Set the last 4 digits
+                card.setLast4Digits(ccNumber.substring(ccNumber.length() - 4));
+            }
+
+            //Set the nickname
+            card.setNickName(et_nickName_update.getText().toString());
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            super.onPostExecute(aVoid);
+            //Update details in MongoDB
+            updateMongo();
+
+            //Set variables back to default values
+            image_updated = false;
+            key_details_updated = false;
+            steganography.setImage(null);
+        }
+    }
+
+    //To validate update dialog form
+    public boolean validateUpdateDialogForm() {
+        //If ccNumber entered is less than 16 characters
+        if (et_ccNumber_update.getText().toString().trim().replaceAll("\\s", "").length() != 16) {
+            et_ccNumber_update.setError("Enter your credit card number.");
+            et_ccNumber_update.requestFocus();
+        }
+
+        //If expiry date entered is less than 5 characters
+        if (et_expiry_update.getText().toString().trim().length() != 5) {
+            et_expiry_update.setError("Enter the expiry date.");
+            et_expiry_update.requestFocus();
+        }
+
+        //If cvv entered is less than 3 characters
+        if (et_cvv_update.getText().toString().trim().length() != 3) {
+            et_cvv_update.setError("Enter the CVV.");
+            et_cvv_update.requestFocus();
+        }
+
+        //If nickname is not entered
+        if (et_nickName_update.getText().toString().trim().length() == 0) {
+            et_nickName_update.setError("Give your card a nickname.");
+            et_nickName_update.requestFocus();
+        }
+
+        // if the details entered are valid
+        if (et_ccNumber_update.getText().toString().trim().replaceAll("\\s", "").length() == 16 && et_expiry_update.getText().toString().trim().length() == 5 && et_cvv_update.getText().toString().trim().length() == 3 && et_nickName_update.getText().toString().trim().length() > 0) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    //To format card number
+    public String formatCardNumber(String ccNumber) {
+        String formattedString = "";
+        //Add first 4 numbers
+        formattedString = ccNumber.substring(0, 4);
+
+        //Add a space after that
+        formattedString += " ";
+
+        //Add next 4 numbers
+        formattedString += ccNumber.substring(4, 8);
+
+        //Add a space after that
+        formattedString += " ";
+
+        //Add next 4 numbers
+        formattedString += ccNumber.substring(8, 12);
+
+        //Add a space after that
+        formattedString += " ";
+
+        //Add last 4 numbers
+        formattedString += ccNumber.substring(12, 16);
+
+        return formattedString;
+
     }
 
     //Update mongo
     public void updateMongo() {
         Call<Card> call = stegoPayApi.updateCard(card.getCardID(), JWTToken, card);
+
+        //Display progress bar
         tv_progress.setText("Updating");
-        tv_progress.setVisibility(View.VISIBLE);
-        progressBar.setVisibility(View.VISIBLE);
 
-
+        //Make a update request
         call.enqueue(new Callback<Card>() {
             @Override
             public void onResponse(Call<Card> call, Response<Card> response) {
@@ -511,7 +689,7 @@ public class CardDetails extends AppCompatActivity {
                     finish();
                     return;
                 }
-                Toast.makeText(getApplicationContext(), "Card Updated in Mongo", Toast.LENGTH_LONG).show();
+                //If card is updated in mongoDB, update card in SQLite
                 updateSQLITE();
             }
 
@@ -523,13 +701,20 @@ public class CardDetails extends AppCompatActivity {
         });
     }
 
+    //Update SQLite
     public void updateSQLITE() {
-        boolean result = stegoPayDB.updateCard(userId, card.getCardID(), card.getNickName(), card.getImage(), convertHashMapToString(card.getHashMap_1()), card.getLast4Digits());
+
+        //Calling DBHelper function to update card
+        boolean result = stegoPayDB.updateCard(userId, card.getCardID(), card.getNickName(), card.getLast4Digits());
+
+        //If the update is successful
         if (result) {
-        Toast.makeText(getApplicationContext(), "Card Updated in SQLite", Toast.LENGTH_LONG).show();
-        setViews();
-        progressBar.setVisibility(View.GONE);
-        tv_progress.setVisibility(View.GONE);
+            Toast.makeText(getApplicationContext(), "Card Updated", Toast.LENGTH_SHORT).show();
+
+            //Set views
+            setViews();
+            progressBar.setVisibility(View.GONE);
+            tv_progress.setVisibility(View.GONE);
         } else {
             Toast.makeText(getApplicationContext(), "Error updating card in SQLite", Toast.LENGTH_LONG).show();
             finish();
@@ -576,7 +761,6 @@ public class CardDetails extends AppCompatActivity {
                     Toast.makeText(getApplicationContext(), "Unable to connect to server: " + response.code(), Toast.LENGTH_LONG).show();
                     return;
                 }
-                Toast.makeText(getApplicationContext(), "Card Deleted From Mongo: "+response.body().get("success"),Toast.LENGTH_LONG).show();
                 deleteFromSQLite();
 
             }
@@ -590,15 +774,14 @@ public class CardDetails extends AppCompatActivity {
     }
 
     public void deleteFromSQLite() {
-        boolean success = stegoPayDB.deleteCard(userId,card.getCardID());
-        if(success){
+        boolean success = stegoPayDB.deleteCard(userId, card.getCardID());
+        if (success) {
             tv_progress.setVisibility(View.GONE);
             progressBar.setVisibility(View.GONE);
-        Toast.makeText(getApplicationContext(), "Card Deleted From SQLITE",Toast.LENGTH_LONG).show();
-        finish();
-        }
-        else{
-            Toast.makeText(getApplicationContext(),"ERROR DELETING CARD FROM SQLITE",Toast.LENGTH_LONG).show();
+            Toast.makeText(getApplicationContext(), "Card Deleted", Toast.LENGTH_LONG).show();
+            finish();
+        } else {
+            Toast.makeText(getApplicationContext(), "ERROR DELETING CARD FROM SQLITE", Toast.LENGTH_LONG).show();
         }
     }
 
@@ -619,8 +802,8 @@ public class CardDetails extends AppCompatActivity {
 
     public void hideUpdateProgressBar() {
         //Hide progress bar belonging to the update pop up window
-        progressBar_update.setVisibility(View.INVISIBLE);
-        tv_progress_update.setVisibility(View.INVISIBLE);
+        progressBar_update.setVisibility(View.GONE);
+        tv_progress_update.setVisibility(View.GONE);
     }
 
     public void showUpdateProgressBar() {
@@ -648,18 +831,6 @@ public class CardDetails extends AppCompatActivity {
         }
         //Return ASCII
         return ascii;
-    }
-
-    //Converting a hashmap to string
-    public String convertHashMapToString(HashMap toConvert) {
-        String converted = "";
-        Iterator hmIterator = toConvert.entrySet().iterator();
-
-        while (hmIterator.hasNext()) {
-            Map.Entry mapElement = (Map.Entry) hmIterator.next();
-            converted += mapElement.getKey() + ":" + mapElement.getValue() + ";";
-        }
-        return converted;
     }
 
     //OnClick of button to update cover image
@@ -710,19 +881,33 @@ public class CardDetails extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         //Coming back from Gallery
         if (requestCode == GALLERY_REQUEST_CODE && resultCode == RESULT_OK && data != null) {
-            //to store image selected as a bitmap
-            Bitmap temp = null;
+            //Get image uri
+            Uri imageData = data.getData();
+            new selectedImage_to_bitmap().execute(imageData);
+
+        }
+    }
+
+    private class selectedImage_to_bitmap extends AsyncTask<Uri, Void, Bitmap> {
+
+        @Override
+        protected Bitmap doInBackground(Uri... uris) {
+            //Convert to bitmap
+            InputStream imageStream = null;
             try {
-                //Get image uri
-                Uri imageData = data.getData();
-                //Convert to bitmap
-                InputStream imageStream = getContentResolver().openInputStream(imageData);
-                temp = BitmapFactory.decodeStream(imageStream);
+                imageStream = getContentResolver().openInputStream(uris[0]);
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
             }
+            Bitmap temp = BitmapFactory.decodeStream(imageStream);
+            return temp;
+        }
+
+        @Override
+        protected void onPostExecute(Bitmap bitmap) {
+            super.onPostExecute(bitmap);
             //Execute AsyncTask for preprocessing the image
-            new preprocessing().execute(temp);
+            new preprocessing().execute(bitmap);
         }
     }
 
@@ -772,8 +957,7 @@ public class CardDetails extends AppCompatActivity {
             if (aBoolean == true) {
                 //Set cover image on the update dialog
                 iv_coverImage_update.setImageBitmap(steganography.getImage());
-            }
-            else {
+            } else {
                 //Else set the image on the update dialog to the original image used.
                 iv_coverImage_update.setImageBitmap(coverImage);
 
@@ -790,6 +974,7 @@ public class CardDetails extends AppCompatActivity {
 
         }
     }
+
     //To convert a string to binary
     public String StringconvertToBinary(String input) {
         String binary = "";
@@ -814,7 +999,6 @@ public class CardDetails extends AppCompatActivity {
         //Return the binary string
         return binary;
     }
-
 
 
 }

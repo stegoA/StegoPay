@@ -34,13 +34,15 @@ public class TransactionAdapterPopup extends ArrayAdapter<Transaction> {
         Transaction currentTransaction = transactionsList.get(position);
 
         TextView date = (TextView) listItem.findViewById(R.id.tv_date_single_popup);
-        date.setText(currentTransaction.getDate());
+        //Set the date of the transaction
+        date.setText(currentTransaction.getDate().split("T")[0]);
 
         TextView store = (TextView) listItem.findViewById(R.id.tv_store_single_popup);
         store.setText(currentTransaction.getVendor());
 
         TextView amount = (TextView) listItem.findViewById(R.id.tv_amount_single_popup);
-        amount.setText(currentTransaction.getAmount());
+        String amount_with_currency = currentTransaction.getCurrency() +" "+currentTransaction.getAmount();
+        amount.setText(amount_with_currency);
 
         return listItem;
 

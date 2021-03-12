@@ -5,6 +5,8 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.graphics.BitmapFactory;
+import android.util.Base64;
 
 import androidx.annotation.Nullable;
 
@@ -118,7 +120,7 @@ public class DataBaseHelper extends SQLiteOpenHelper {
         SQLiteDatabase stegoPayDB = this.getWritableDatabase();
 
         String create_Users_Cards_Table = "CREATE TABLE IF NOT EXISTS " + "user"+userId+ "(cardId VARCHAR2 PRIMARY KEY, " +
-                "nickName VARCHAR2, image VARCHAR2, hashMap_1 VARCHAR2, last4Digits VARCHAR2 )";
+                "nickName VARCHAR2, last4Digits VARCHAR2 )";
 
         stegoPayDB.execSQL(create_Users_Cards_Table);
     }
@@ -142,24 +144,20 @@ public class DataBaseHelper extends SQLiteOpenHelper {
     }
 
     //Add card for a particular user
-    public void addCard(String userId, String cardId, String nickName, String image, String hashMap_1, String last4Digits){
+    public void addCard(String userId, String cardId, String nickName, String last4Digits){
         SQLiteDatabase stegoPayDB = this.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
         contentValues.put("cardId",cardId);
         contentValues.put("nickName",nickName);
-        contentValues.put("image",image);
-        contentValues.put("hashMap_1",hashMap_1);
         contentValues.put("last4Digits",last4Digits);
         stegoPayDB.insert("user"+userId,null, contentValues);
     }
 
     //Update Card
-    public boolean updateCard(String userId,String cardId, String nickName, String image, String hashMap_1, String last4Digits){
+    public boolean updateCard(String userId,String cardId, String nickName, String last4Digits){
         SQLiteDatabase stegoPayDB = this.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
         contentValues.put("nickName",nickName);
-        contentValues.put("image",image);
-        contentValues.put("hashMap_1",hashMap_1);
         contentValues.put("last4Digits",last4Digits);
         stegoPayDB.update("user"+userId,contentValues,"cardId=?",new String[]{cardId});
         return true;
@@ -182,16 +180,15 @@ public class DataBaseHelper extends SQLiteOpenHelper {
 
         Cursor cursor = db.rawQuery(queryString, null);
 
-        if (cursor.moveToFirst()) {
 
+        if (cursor.moveToFirst()) {
             do {
                 String cardID = cursor.getString(0);
+                System.out.println("CARD: "+cardID);
                 String nickName = cursor.getString(1);
-                String image = cursor.getString(2);
-                HashMap<Integer, String> hashMap1 = convertStringToHashMap_1(cursor.getString(3));
-                String last4Digits = cursor.getString(4);
+                String last4Digits = cursor.getString(2);
 
-                Card userCard = new Card(cardID, nickName, hashMap1, image, last4Digits);
+                Card userCard = new Card(cardID, nickName, last4Digits);
                 returnList.add(userCard);
 
             } while (cursor.moveToNext());
@@ -295,34 +292,8 @@ public class DataBaseHelper extends SQLiteOpenHelper {
         stegoPayDB.update(USER_PROFILE_TABLE, contentValues, COLUMN_USER_ID +"=?", new String[]{userId});
     }
 
-    //Converting string to hashmap 1
-    //0:1X1;1:1X1;2:1X1;3:1X1;4:1X1;5:1X1;6:1X1;7:1X1;
-    public HashMap<Integer,String> convertStringToHashMap_1(String toConvert){
-        HashMap<Integer,String> hashMap_1 = new HashMap<Integer, String>();
-
-        String[] singleEntry = toConvert.split(";");
-        for(int i=0;i<singleEntry.length;i++){
-            String[] keyValue = singleEntry[i].split(":");
-            hashMap_1.put(Integer.parseInt(keyValue[0]),keyValue[1]);
-        }
 
 
-        return hashMap_1;
-
-    }
-    //Converting string to hashmap2
-    //1X1:0000000000;2X1:1110010101
-    public HashMap<String,String> convertStringToHashMap_2(String toConvert){
-        HashMap<String,String> hashMap_2 = new HashMap<String, String>();
-
-        String[] singleEntry = toConvert.split(";");
-        for(int i=0;i<singleEntry.length;i++){
-            String[] keyValue = singleEntry[i].split(":");
-            hashMap_2.put(keyValue[0],keyValue[1]);
-        }
-
-        return hashMap_2;
-    }
 
 
 

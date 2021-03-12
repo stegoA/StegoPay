@@ -47,13 +47,6 @@ import static com.example.stegopaybeta.StegoPayUtils.isEmailValid;
 
 public class EditProfile extends AppCompatActivity {
 
-    @Override
-    public void onBackPressed() {
-        Intent i = new Intent(getApplicationContext(), Profile.class);
-        startActivity(i);
-        //super.onBackPressed();
-    }
-
     private Retrofit retrofit;
     private StegoPayApi stegoPayApi;
 
@@ -257,8 +250,10 @@ public class EditProfile extends AppCompatActivity {
         stegoPayDB.updateUser(user.get_id(), user.getFirstName(), user.getLastName(), user.getEmail(), user.getProfileImage());
         progressBar.setVisibility(View.GONE);
         Toast.makeText(EditProfile.this, "Profile saved!", Toast.LENGTH_LONG).show();
+        finish();
+        /*
         Intent intent = new Intent(EditProfile.this, Profile.class);
-        startActivity(intent);
+        startActivity(intent);*/
     }
 
     public HashMap<String, String> getUser(Cursor cursor) {

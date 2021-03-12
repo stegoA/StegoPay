@@ -81,9 +81,6 @@ public class Home extends AppCompatActivity {
         profileImageView = (CircleImageView) findViewById(R.id.profileImageView);
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
 
-        progressBar.setVisibility(View.VISIBLE);
-
-
         retrofit = new Retrofit.Builder()
                 .baseUrl(BASE_URL)
                 .addConverterFactory(GsonConverterFactory.create())
@@ -94,7 +91,7 @@ public class Home extends AppCompatActivity {
 
         dataBaseHelper = new DataBaseHelper(Home.this);
 
-
+        /* IN ON RESUME
         // Getting the JWT token from shared preferences
         String tokenFromSharedPrefs = getTokenFromSharedPrefs();
 
@@ -107,7 +104,7 @@ public class Home extends AppCompatActivity {
 
        //  dataBaseHelper.dropTable(userIdFromToken);
 
-        getTransactionsFromServer(tokenFromSharedPrefs);
+        getTransactionsFromServer(tokenFromSharedPrefs);*/
 
 
 
@@ -140,7 +137,27 @@ public class Home extends AppCompatActivity {
 
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
 
+        progressBar.setVisibility(View.VISIBLE);
+
+        transactionList.clear();
+
+        // Getting the JWT token from shared preferences
+        String tokenFromSharedPrefs = getTokenFromSharedPrefs();
+
+        // Getting the user's ID from the JWT token
+        String userIdFromToken = getUserIDFromToken(tokenFromSharedPrefs);
+
+        // Get user details from SQLite
+        getUserDetails(userIdFromToken);
+
+
+        //  dataBaseHelper.dropTable(userIdFromToken);
+        getTransactionsFromServer(tokenFromSharedPrefs);
+    }
 
     public String getTokenFromSharedPrefs() {
         String fromSharedPrefs = sharedPreferences.getString("Token", "");
@@ -190,7 +207,7 @@ public class Home extends AppCompatActivity {
                 List<Transaction> transactions = response.body();
 
                 for (Transaction transaction: transactions) {
-                    Transaction transactionObj = new Transaction(transaction.getVendor(), transaction.getAmount(), transaction.getCardID(), transaction.getDate());
+                    Transaction transactionObj = new Transaction(transaction.getVendor(), transaction.getAmount(), transaction.getCardID(), transaction.getDate(), transaction.getCurrency());
                     transactionList.add(transactionObj);
                 }
 

@@ -150,22 +150,6 @@
         />
 
 
-    <!-- View all TextView -->
-    <TextView
-        android:id="@+id/view_all"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_toRightOf="@+id/my_activity"
-        android:layout_marginLeft="313dp"
-        android:layout_below="@+id/viewCardsButton"
-        android:layout_marginTop="25dp"
-        android:text="@string/view_all"
-        android:textAppearance="@style/view_all"
-        android:gravity="center_horizontal|top"
-
-        />
-
 
     <!-- Transactions view -->
 

@@ -8,28 +8,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-        <ProgressBar
-            android:id="@+id/progressBar_update"
-            android:layout_width="200dp"
-            android:layout_height="200dp"
-            android:visibility="invisible"
-            tools:visibility="visible"
-            android:indeterminateTint="@color/gradient_purple"
-            android:layout_centerInParent="true" />
-
-        <TextView
-            android:id="@+id/tv_progress_update"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignStart="@id/progressBar_update"
-            android:layout_marginTop="370dp"
-            android:layout_marginLeft="30dp"
-            tools:text="Preprocessing"
-            android:textColor="@color/black"
-            tools:visibility="visible"
-            android:visibility="invisible"
-            android:textStyle="bold"
-            android:textSize="20sp" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -50,6 +28,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="40dp"
+                android:textAlignment="center"
                 android:layout_marginTop="20dp"
                 android:layout_marginRight="40dp"
                 android:hint="Enter NickName" />
@@ -58,6 +37,9 @@
                 android:id="@+id/et_ccNumber_update"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:textAlignment="center"
+                android:maxLength="20"
+                android:inputType="number"
                 android:layout_marginLeft="40dp"
                 android:layout_marginTop="20dp"
                 android:layout_marginRight="40dp"
@@ -67,6 +49,8 @@
                 android:id="@+id/et_expiry_update"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:textAlignment="center"
+                android:maxLength="5"
                 android:layout_marginLeft="40dp"
                 android:layout_marginTop="20dp"
                 android:layout_marginRight="40dp"
@@ -76,6 +60,9 @@
                 android:id="@+id/et_cvv_update"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:textAlignment="center"
+                android:maxLength="3"
+                android:inputType="number"
                 android:layout_marginLeft="40dp"
                 android:layout_marginTop="20dp"
                 android:layout_marginRight="40dp"
@@ -92,5 +79,26 @@
 
 
         </LinearLayout>
+
+        <ProgressBar
+            android:id="@+id/progressBar_update"
+            android:layout_width="200dp"
+            android:layout_height="200dp"
+            android:visibility="invisible"
+            tools:visibility="visible"
+            android:indeterminateTint="@color/gradient_purple"
+            android:layout_centerInParent="true" />
+
+        <TextView
+            android:id="@+id/tv_progress_update"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            tools:text="Preprocessing"
+            android:textColor="@color/black"
+            tools:visibility="visible"
+            android:visibility="invisible"
+            android:textStyle="bold"
+            android:textSize="18sp" />
     </RelativeLayout>
 </ScrollView>

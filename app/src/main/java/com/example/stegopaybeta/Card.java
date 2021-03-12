@@ -26,11 +26,9 @@ public class Card {
     }
 
 // For SQLite
-    public Card(String cardID, String nickName, HashMap<Integer, String> hashMap_1, String image, String last4Digits) {
+    public Card(String cardID, String nickName, String last4Digits) {
         this.cardID = cardID;
         this.nickName = nickName;
-        this.image = image;
-        this.hashMap_1 = hashMap_1;
         this.last4Digits = last4Digits;
     }
 

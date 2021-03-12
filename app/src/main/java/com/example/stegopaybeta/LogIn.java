@@ -288,7 +288,7 @@ public class LogIn extends AppCompatActivity {
 
                                 if (!cardExists) {
                                     // Add card to user's card table in the local db
-                                    addCardToCardsTable(card.getCardID(), card.getNickName(), card.getImage(), convertHashMapToString(card.getHashMap_1()), card.getLast4Digits(), user.get_id());
+                                    addCardToCardsTable(card.getCardID(), card.getNickName(), card.getLast4Digits(), user.get_id());
                                 }
 
                             }
@@ -304,7 +304,9 @@ public class LogIn extends AppCompatActivity {
                                 if (!cardExists) {
                                     // Add card to user's card table in the local db
                                     System.out.println("I am inside !cardExists");
-                                    addCardToCardsTable(card.getCardID(), card.getNickName(), card.getImage(), convertHashMapToString(card.getHashMap_1()), card.getLast4Digits(), user.get_id());
+
+
+                                    addCardToCardsTable(card.getCardID(), card.getNickName(), card.getLast4Digits(), user.get_id());
                                 }
 
                             }
@@ -324,8 +326,8 @@ public class LogIn extends AppCompatActivity {
 
     }
 
-    public void addCardToCardsTable(String cardID, String nickName, String encodedImage, String hashMap1, String last4Digits, String userID) {
-        stegoPayDB.addCard(userID, cardID, nickName, encodedImage, hashMap1, last4Digits);
+    public void addCardToCardsTable(String cardID, String nickName, String last4Digits, String userID) {
+        stegoPayDB.addCard(userID, cardID, nickName, last4Digits);
     }
 
     public boolean checkIfCardExistsInSQLite(String userID, String cardID) {
