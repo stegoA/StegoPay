@@ -32,14 +32,15 @@
                 android:layout_marginTop="85dp"
                 android:background="@drawable/bottom_rounded_rectangle" />
 
-            <View
-                android:id="@+id/ellipse_3"
-                android:layout_width="42dp"
-                android:layout_height="42dp"
+
+            <de.hdodenhof.circleimageview.CircleImageView
+                android:id="@+id/profileImageView"
                 android:layout_alignParentLeft="true"
                 android:layout_marginLeft="350dp"
                 android:layout_alignParentTop="true"
                 android:layout_marginTop="10dp"
+                android:layout_width="42dp"
+                android:layout_height="42dp"
                 android:background="@drawable/profile_picture_ellipse"
                 />
 
@@ -58,9 +59,9 @@
 
             <!-- Hello_user TextView-->
             <TextView
+                android:id="@+id/userGreetingTextView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Hello, John!"
                 android:textAppearance="@style/hello_user"
                 android:layout_alignParentLeft="true"
                 android:layout_alignParentTop="true"
@@ -104,7 +105,7 @@
             android:layout_marginTop="25dp"
             android:layout_marginLeft="25dp"
             android:background="@drawable/imagebutton_bg"
-            android:drawableTop="@drawable/ic_credit_card"
+            android:drawableTop="@drawable/ic_credit_card_white"
             android:padding="10dp"
             android:text="@string/add_card_button"
             android:textAllCaps="false"
@@ -140,7 +141,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
-        android:layout_marginLeft="30dp"
+        android:layout_marginLeft="35dp"
         android:layout_below="@+id/addCardButton"
         android:layout_marginTop="25dp"
         android:text="@string/my_activity"
@@ -148,21 +149,6 @@
         android:gravity="center_horizontal|top"
         />
 
-
-    <!-- View all TextView -->
-    <TextView
-        android:id="@+id/view_all"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_toRightOf="@+id/my_activity"
-        android:layout_marginLeft="315dp"
-        android:layout_marginTop="313dp"
-        android:text="@string/view_all"
-        android:textAppearance="@style/view_all"
-        android:gravity="center_horizontal|top"
-
-        />
 
 
     <!-- Transactions view -->
@@ -182,13 +168,46 @@
     <!-- Transactions listview-->
 
     <ListView
-        android:id="@+id/activityListView"
+        android:id="@+id/transactionsListView"
         android:layout_below="@+id/my_activity"
         android:layout_marginTop="10dp"
         android:layout_width="match_parent"
         android:layout_marginLeft="25dp"
         android:layout_marginRight="25dp"
         android:layout_height="295dp" />
+
+    <ImageView
+        android:id="@+id/noTransactionsImageView"
+        android:layout_below="@+id/viewCardsButton"
+        android:layout_width="165dp"
+        android:layout_height="165dp"
+        android:src="@drawable/ic_undraw_no_data_illustration"
+        android:layout_centerInParent="true"
+        android:layout_marginTop="100dp"
+        android:visibility="invisible"
+        />
+
+    <TextView
+        android:id="@+id/noTransactionsTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/noTransactionsImageView"
+        android:layout_alignEnd="@+id/noTransactionsImageView"
+        android:text="No transactions to show."
+        android:layout_marginTop="5dp"
+        android:visibility="invisible"
+        />
+
+
+    <ProgressBar
+        android:layout_below="@id/viewCardsButton"
+        android:id="@+id/progressBar"
+        android:layout_width="200dp"
+        android:layout_height="200dp"
+        android:layout_centerInParent="true"
+        android:layout_marginTop="70dp"
+        android:indeterminateTint="@color/gradient_purple"
+        />
 
 
 

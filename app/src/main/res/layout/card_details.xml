@@ -1,14 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
-    xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:tools="http://schemas.android.com/tools"
     android:background="@color/background">
 
 
     <FrameLayout
         android:id="@+id/frameLayout1"
         android:layout_width="match_parent"
-        android:layout_height="250dp">
+        android:layout_height="250dp"
+        android:visibility="invisible"
+        tools:visibility="visible">
 
         <!-- Top rectangle -->
         <View
@@ -76,6 +79,7 @@
             android:layout_marginRight="55dp"
             android:src="@drawable/ic_edit"
             android:background="@null"
+            android:onClick="updateCard"
             />
 
         <!-- Delete icon -->
@@ -88,18 +92,21 @@
             android:layout_marginRight="15dp"
             android:src="@drawable/ic_delete"
             android:background="@null"
+            android:onClick="deleteCard"
             />
 
         <!-- Cover image ImageView-->
 
         <ImageView
-            android:id="@+id/rectangle_5"
+            android:id="@+id/iv_coverImage"
             android:layout_width="296dp"
             android:layout_height="160dp"
             android:layout_gravity="center"
             android:layout_marginTop="30dp"
             android:background="@drawable/credit_card_view"
+            android:scaleType="centerCrop"
             />
+
 
         <RelativeLayout
             android:id="@+id/relativeLayout1"
@@ -108,66 +115,57 @@
             android:layout_marginTop="30dp"
             android:layout_gravity="center">
 
-            <!-- Card type (Debit/Credit)-->
 
-            <TextView
-                android:id="@+id/creditCardTextView"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="[Credit/Debit]"
-                android:layout_margin="15dp"
-                android:textColor="@color/white"
-                />
 
             <!-- Card type (Visa/Mastercard)-->
 
             <TextView
-                android:id="@+id/cardTypeTextView"
-                android:layout_toRightOf="@+id/creditCardTextView"
+                android:id="@+id/tv_nickName"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="[Visa/Mastercard/Bank]"
+                android:text="[Nickname]"
                 android:layout_marginTop="15dp"
-                android:layout_marginLeft="25dp"
+                android:layout_marginLeft="15dp"
                 android:textColor="@color/white"
+                android:textColorHighlight="@color/white"
+                android:textStyle="bold"
+                android:background="@drawable/image_overlay"
                 />
 
-            <!-- Credit card number TextView-->
 
-            <TextView
-                android:id="@+id/creditCardNumberTextView"
-                android:layout_below="@+id/creditCardTextView"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="15dp"
-                android:layout_marginTop="10dp"
-                android:text="[Credit card number]"
-                android:textColor="@color/white" />
 
             <!-- Expiration date text TextView -->
 
             <TextView
                 android:id="@+id/expirationDateTextView"
-                android:layout_below="@id/creditCardNumberTextView"
+                android:layout_below="@id/tv_nickName"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="15dp"
-                android:layout_marginTop="15dp"
+                android:layout_marginTop="70dp"
                 android:text="@string/expiration_date_text"
-                android:textColor="@color/white" />
+                android:textColor="@color/white"
+                android:textColorHighlight="@color/white"
+                android:textStyle="bold"
+                android:background="@drawable/image_overlay"
+                />
 
 
             <!-- Expiration date TextView -->
 
             <TextView
-                android:id="@+id/actualExpirationDateTextView"
+                android:id="@+id/tv_expiryDate"
                 android:layout_below="@id/expirationDateTextView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="15dp"
-                android:layout_marginTop="10dp"
-                android:text="[Expiration Date]"
-                android:textColor="@color/white" />
+                android:layout_marginLeft="40dp"
+                android:layout_marginTop="8dp"
+                android:text="12/22"
+                android:textColor="@color/white"
+                android:textColorHighlight="@color/white"
+                android:textStyle="bold"
+                android:background="@drawable/image_overlay"
+                />
 
         </RelativeLayout>
     </FrameLayout>
@@ -187,6 +185,8 @@
         android:text="@string/my_activity"
         android:textAppearance="@style/my_activity"
         android:gravity="center_horizontal|top"
+        android:visibility="invisible"
+        tools:visibility="visible"
         />
 
 
@@ -201,6 +201,10 @@
         android:layout_marginTop="30dp"
         android:layout_marginLeft="200dp"
         android:textAppearance="@style/view_all"
+        android:visibility="invisible"
+        tools:visibility="visible"
+        android:clickable="true"
+        android:onClick="viewAllTransactions"
         />
 
 
@@ -214,24 +218,61 @@
         android:layout_marginLeft="25dp"
         android:layout_marginRight="25dp"
         android:layout_marginTop="10dp"
-        android:background="@drawable/my_activity_view">
+        android:visibility="invisible"
+        android:background="@drawable/my_activity_view"
+        tools:visibility="visible">
 
     </View>
 
     <!-- Transactions ListView -->
 
     <ListView
-        android:id="@+id/activityListView"
+        android:visibility="invisible"
+        android:id="@+id/lv_activity"
         android:layout_below="@+id/my_activity"
         android:layout_marginTop="10dp"
         android:layout_width="match_parent"
         android:layout_marginLeft="25dp"
         android:layout_marginRight="25dp"
-        android:layout_height="295dp" />
+        android:layout_height="295dp"
+        tools:visibility="visible"/>
 
+    <ImageView
+        android:id="@+id/noTransactionsImageView"
+        android:layout_below="@+id/my_activity"
+        android:layout_width="165dp"
+        android:layout_height="165dp"
+        android:src="@drawable/ic_undraw_no_data_illustration"
+        android:layout_centerInParent="true"
+        android:layout_marginTop="50dp"
+        android:visibility="invisible"
+        />
 
+    <TextView
+        android:id="@+id/noTransactionsTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/noTransactionsImageView"
+        android:layout_alignEnd="@+id/noTransactionsImageView"
+        android:text="No transactions to show."
+        android:layout_marginTop="5dp"
+        android:visibility="invisible"
+        />
 
-
+    <ProgressBar
+        android:id="@+id/progressBar"
+        android:layout_width="200dp"
+        android:layout_height="200dp"
+        android:layout_centerInParent="true"
+        android:indeterminateTint="@color/gradient_purple"
+        />
+    <TextView
+        android:id="@+id/tv_progress"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@color/black"
+        android:layout_centerInParent="true"
+        android:textSize="20sp"/>
 
 
 

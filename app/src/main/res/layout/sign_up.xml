@@ -58,7 +58,6 @@
 
     </FrameLayout>
 
-
     <FrameLayout
         android:id="@+id/frameLayout2"
         android:layout_width="match_parent"
@@ -69,7 +68,7 @@
         <View
             android:id="@+id/rectangle_8"
             android:layout_width="331dp"
-            android:layout_height="351dp"
+            android:layout_height="395dp"
             android:layout_alignParentStart="true"
             android:layout_alignParentLeft="true"
             android:layout_alignParentTop="true"
@@ -78,14 +77,41 @@
             android:layout_marginTop="120dp"
             android:background="@drawable/cc_form_bg" />
 
+        <!-- First name EditText-->
+        <EditText
+            android:id="@+id/firstNameEditText"
+            android:layout_width="128dp"
+            android:layout_height="31dp"
+            android:layout_gravity="center"
+            android:layout_marginLeft="-68dp"
+            android:layout_marginTop="-45dp"
+            android:background="@drawable/rounded_edittext_bg"
+            android:elevation="4dp"
+            android:hint="First name"
+            android:inputType="text"
+            android:textAlignment="center" />
+
+        <!-- Last name EditText-->
+        <EditText
+            android:id="@+id/lastNameEditText"
+            android:layout_width="128dp"
+            android:layout_height="31dp"
+            android:layout_gravity="center"
+            android:layout_marginLeft="68dp"
+            android:layout_marginTop="-45dp"
+            android:background="@drawable/rounded_edittext_bg"
+            android:elevation="4dp"
+            android:hint="Last name"
+            android:inputType="text"
+            android:textAlignment="center" />
 
         <!-- Email EditText-->
         <EditText
-            android:id="@+id/userEmailEditText"
+            android:id="@+id/emailAddressEditText"
             android:layout_width="264dp"
             android:layout_height="31dp"
             android:layout_gravity="center"
-            android:layout_marginTop="-30dp"
+            android:layout_marginTop="5dp"
             android:background="@drawable/rounded_edittext_bg"
             android:elevation="4dp"
             android:hint="Email address"
@@ -95,57 +121,54 @@
 
         <!-- Password EditText-->
         <EditText
-            android:id="@+id/userPasswordEditText"
+            android:id="@+id/passwordEditText"
             android:layout_width="264dp"
             android:layout_height="31dp"
             android:layout_gravity="center"
-            android:layout_marginTop="30dp"
+            android:layout_marginTop="55dp"
             android:background="@drawable/rounded_edittext_bg"
             android:elevation="4dp"
             android:hint="Password"
             android:inputType="textPassword"
             android:textAlignment="center" />
 
+        <!-- Confirm password EditText-->
+        <EditText
+            android:id="@+id/confirmPasswordEditText"
+            android:layout_width="264dp"
+            android:layout_height="31dp"
+            android:layout_gravity="center"
+            android:layout_marginTop="105dp"
+            android:background="@drawable/rounded_edittext_bg"
+            android:elevation="4dp"
+            android:hint="Confirm password"
+            android:inputType="textPassword"
+            android:textAlignment="center" />
 
-        <!-- Reset password redirect-->
-        <TextView
-            android:id="@+id/resetPasswordRedirect"
-            android:layout_width="116dp"
-            android:layout_height="43dp"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentTop="true"
-            android:layout_marginLeft="149dp"
-            android:layout_marginTop="410dp"
-            android:clickable="true"
-            android:gravity="center_horizontal|top"
-            android:text="Forgot password?"
-            android:textColor="#978B8B" />
-
-
-
+        <!-- Sign Up button-->
         <Button
-            android:id="@+id/logIn"
+            android:id="@+id/signUpButton"
             android:layout_width="174dp"
             android:layout_height="55dp"
             android:layout_gravity="center"
             android:layout_marginTop="225dp"
             android:backgroundTint="@color/gradient_purple"
             android:elevation="4dp"
-            android:text="Log In"
+            android:text="Sign Up"
             android:textColor="#FFFFFF" />
 
-        <!-- Sign up redirect -->
+        <!-- Login redirect -->
         <TextView
-            android:id="@+id/signUpRedirect"
+            android:id="@+id/logInRedirect"
             android:layout_width="203dp"
-            android:layout_height="51dp"
+            android:layout_height="101dp"
             android:layout_alignParentLeft="true"
             android:layout_alignParentTop="true"
             android:layout_marginLeft="100dp"
             android:layout_marginTop="620dp"
             android:clickable="true"
             android:gravity="center_horizontal|top"
-            android:text="Don't have an account? Sign Up"
+            android:text="Already have an account? Log in"
             android:textColor="#978B8B"
             android:textColorHighlight="#D5D3D3" />
 
@@ -160,22 +183,6 @@
             android:layout_marginTop="150dp"
             app:srcCompat="@drawable/stegopay_logo" />
 
-        <RelativeLayout
-            android:layout_width="420dp"
-            android:layout_height="750dp">
-            <ProgressBar
-                android:id="@+id/progress"
-                android:layout_width="50dp"
-                android:layout_height="50dp"
-                android:layout_marginTop="480dp"
-                android:layout_marginLeft="180dp"
-                android:indeterminateTint="@color/gradient_purple"
-                android:visibility="invisible"
-                />
-        </RelativeLayout>
-
 
     </FrameLayout>
-
-
 </RelativeLayout>
