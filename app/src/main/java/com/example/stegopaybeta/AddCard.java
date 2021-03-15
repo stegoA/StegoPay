@@ -55,11 +55,13 @@ import static com.example.stegopaybeta.StegoPayUtils.getUserIDFromToken;
 
 public class AddCard extends AppCompatActivity {
 
-
+    // Initializing sharedPreferences
     SharedPreferences sharedPreferences;
 
+    //SQLite Helper object
     DataBaseHelper db;
 
+    //Initializing retrofit interface
     Retrofit retrofit;
 
     // Gallery request code
@@ -110,6 +112,7 @@ public class AddCard extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.add_card_final);
+
 
          retrofit = new Retrofit.Builder()
                 .baseUrl(BASE_URL)
@@ -289,8 +292,7 @@ public class AddCard extends AppCompatActivity {
         });
 
 
-        // Has to be created already (User USER_ID table)
-        // Sample creation
+
         db = new DataBaseHelper(this);
 
 

@@ -7,6 +7,8 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.text.TextWatcher;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -85,9 +87,10 @@ public class CardDetails extends AppCompatActivity {
     private final int STORAGE_PERMISSION_CODE = 10;
 
     //Initializing views of this activity
-    private ImageView iv_coverImage;
+    private ImageView iv_coverImage, iv_noTransactions;
     private TextView tv_nickName;
     private TextView tv_expiryDate;
+    private TextView tv_noTransactions;
     private ListView lv_activity;
 
     private FrameLayout frameLayout1;
@@ -165,6 +168,8 @@ public class CardDetails extends AppCompatActivity {
         tv_nickName = (TextView) findViewById(R.id.tv_nickName);
         tv_expiryDate = (TextView) findViewById(R.id.tv_expiryDate);
         lv_activity = (ListView) findViewById(R.id.lv_activity);
+        tv_noTransactions = (TextView) findViewById(R.id.noTransactionsTextView);
+        iv_noTransactions = (ImageView) findViewById(R.id.noTransactionsImageView);
 
         frameLayout1 = (FrameLayout) findViewById(R.id.frameLayout1);
         my_activity = (TextView) findViewById(R.id.my_activity);
@@ -328,35 +333,79 @@ public class CardDetails extends AppCompatActivity {
         iv_coverImage.setBackground(drawable);
 
         //Initialize transaction adapter which appears on the screen, include only 3 transactions.
-        if (transactionsList.size() >= 3) {
-            transactionAdapter = new TransactionAdapter(this, new ArrayList<Transaction>(transactionsList.subList(0, 3)));
-        }
-        //If the total number of transactions are less than 3, then pass the entire list
-        else {
-            transactionAdapter = new TransactionAdapter(this, transactionsList);
+        if (transactionsList.isEmpty()) {
+            tv_noTransactions.setVisibility(View.VISIBLE);
+            iv_noTransactions.setVisibility(View.VISIBLE);
+            view_all.setVisibility(View.GONE);
+        } else {
+            view_all.setVisibility(View.VISIBLE);
+            if (transactionsList.size() >= 3) {
+                transactionAdapter = new TransactionAdapter(this, new ArrayList<Transaction>(transactionsList.subList(0, 3)));
+            }
+            //If the total number of transactions are less than 3, then pass the entire list
+            else {
+                transactionAdapter = new TransactionAdapter(this, transactionsList);
+            }
+
+            //Set Adapter for the list view
+            lv_activity.setAdapter(transactionAdapter);
         }
 
-        //Set Adapter for the list view
-        lv_activity.setAdapter(transactionAdapter);
 
         //Hide progress bar and display all the views
         hideProgressBar();
 
     }
 
-    //On click of View all transactions
-    public void viewAllTransactions(View v) {
+    public void getUpdatedTransactions_for_pop_up(){
+
+        //Call to get all transactions made by this card
+        Call<ArrayList<Transaction>> call = stegoPayApi.getAllTransactionsOfACard(card.getCardID(), JWTToken);
+
+        //Make request to /getAllTransactionsOfACard/cardId
+        call.enqueue(new Callback<ArrayList<Transaction>>() {
+            @Override
+            public void onResponse(Call<ArrayList<Transaction>> call, Response<ArrayList<Transaction>> response) {
+                if (!response.isSuccessful()) {
+                    System.out.println(response.code());
+                    Toast.makeText(getApplicationContext(), "Unable to connect to the server, Please Try Again Later", Toast.LENGTH_LONG).show();
+                    finish();
+                    return;
+                }
+                //Get the transactions returned into transactionsList
+                transactionsList = response.body();
+
+                //Proceed to setViews
+                setViews();
+
+                showDialog_viewAll();
+
+            }
+
+            @Override
+            public void onFailure(Call<ArrayList<Transaction>> call, Throwable t) {
+                Toast.makeText(getApplicationContext(), "Unable to connect to the server, Please Try Again Later", Toast.LENGTH_LONG).show();
+                finish();
+            }
+        });
+    }
+
+    public void showDialog_viewAll(){
+
+        tv_progress.setVisibility(View.GONE);
+        progressBar.setVisibility(View.GONE);
+
         //Initializing dialog
-        final Dialog dialog = new Dialog(this);
+        Dialog dialog = new Dialog(this);
 
         //Set view of dialog to the custom layout made, which includes a list view
         dialog.setContentView(R.layout.custom_dialog_transactions_list);
 
-        //Set title
-        dialog.setTitle("Transactions");
-
         //initializing list view in the custom layout. (View in custom_dialog_transactions_list.xml)
         ListView pop_up_list_view = (ListView) dialog.findViewById(R.id.custom_dialog_listView_transactions);
+
+        pop_up_list_view.setDivider(new ColorDrawable(Color.DKGRAY));
+        pop_up_list_view.setDividerHeight(1);
 
         //Initializing adapter for pop up list view
         transactionAdapter_popup = new TransactionAdapterPopup(this, transactionsList);
@@ -369,6 +418,45 @@ public class CardDetails extends AppCompatActivity {
 
         //Display the dialog with the list view
         dialog.show();
+    }
+
+    //On click of View all transactions
+    public void viewAllTransactions(View v) {
+
+        tv_progress.setText("");
+        tv_progress.setVisibility(View.VISIBLE);
+        progressBar.setVisibility(View.VISIBLE);
+
+        getUpdatedTransactions_for_pop_up();
+
+//        //Initializing dialog
+//        final Dialog dialog = new Dialog(this);
+//
+//        //Set view of dialog to the custom layout made, which includes a list view
+//        dialog.setContentView(R.layout.custom_dialog_transactions_list);
+//
+//        //Set title
+//        dialog.setTitle("Transactions");
+//
+//
+//        //initializing list view in the custom layout. (View in custom_dialog_transactions_list.xml)
+//        ListView pop_up_list_view = (ListView) dialog.findViewById(R.id.custom_dialog_listView_transactions);
+//
+//        pop_up_list_view.setDivider(new ColorDrawable(Color.DKGRAY));
+//        pop_up_list_view.setDividerHeight(1);
+//
+//
+//        //Initializing adapter for pop up list view
+//        transactionAdapter_popup = new TransactionAdapterPopup(this, transactionsList);
+//
+//        //Setting the adapter
+//        pop_up_list_view.setAdapter(transactionAdapter_popup);
+//
+//        //Specifying dialog width and height
+//        dialog.getWindow().setLayout(WindowManager.LayoutParams.MATCH_PARENT, 1000);
+//
+//        //Display the dialog with the list view
+//        dialog.show();
     }
 
     //On Click of Update Card
@@ -546,11 +634,14 @@ public class CardDetails extends AppCompatActivity {
 
     }
 
+
+
+
     private class update_card_background extends AsyncTask<Void, Void, Void> {
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            tv_progress.setText("Mapping");
+            tv_progress.setText("");
             tv_progress.setVisibility(View.VISIBLE);
             progressBar.setVisibility(View.VISIBLE);
         }
@@ -677,8 +768,6 @@ public class CardDetails extends AppCompatActivity {
     public void updateMongo() {
         Call<Card> call = stegoPayApi.updateCard(card.getCardID(), JWTToken, card);
 
-        //Display progress bar
-        tv_progress.setText("Updating");
 
         //Make a update request
         call.enqueue(new Callback<Card>() {
@@ -794,7 +883,6 @@ public class CardDetails extends AppCompatActivity {
         //Rest of the views are shown
         frameLayout1.setVisibility(View.VISIBLE);
         my_activity.setVisibility(View.VISIBLE);
-        view_all.setVisibility(View.VISIBLE);
         rectangle_6.setVisibility(View.VISIBLE);
         lv_activity.setVisibility(View.VISIBLE);
 
@@ -918,7 +1006,7 @@ public class CardDetails extends AppCompatActivity {
         protected void onPreExecute() {
             super.onPreExecute();
             //Show progress bar (on top of the dialog) before executing the background thread
-            tv_progress_update.setText("Preprocessing");
+            tv_progress_update.setText("Pre-processing");
             showUpdateProgressBar();
         }
 

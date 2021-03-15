@@ -10,7 +10,10 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class TransactionAdapterPopup extends ArrayAdapter<Transaction> {
@@ -34,14 +37,23 @@ public class TransactionAdapterPopup extends ArrayAdapter<Transaction> {
         Transaction currentTransaction = transactionsList.get(position);
 
         TextView date = (TextView) listItem.findViewById(R.id.tv_date_single_popup);
-        //Set the date of the transaction
-        date.setText(currentTransaction.getDate().split("T")[0]);
+
+        SimpleDateFormat inputDate = new SimpleDateFormat("yyyy-MM-dd");
+        SimpleDateFormat outputDate = new SimpleDateFormat("dd/MM/yyyy");
+
+        try {
+            Date currentDate = inputDate.parse(currentTransaction.getDate().split("T")[0]);
+            date.setText(outputDate.format(currentDate));
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
 
         TextView store = (TextView) listItem.findViewById(R.id.tv_store_single_popup);
         store.setText(currentTransaction.getVendor());
 
         TextView amount = (TextView) listItem.findViewById(R.id.tv_amount_single_popup);
-        String amount_with_currency = currentTransaction.getCurrency() +" "+currentTransaction.getAmount();
+        String amount_with_currency = currentTransaction.getCurrency() + " " + String.format("%.2f", Double.parseDouble(currentTransaction.getAmount()));
         amount.setText(amount_with_currency);
 
         return listItem;

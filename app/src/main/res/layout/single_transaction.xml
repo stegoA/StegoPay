@@ -16,7 +16,6 @@
         android:textAlignment="center"
         android:textSize="18sp"
         android:layout_margin="10dp"
-        android:textColor="#FF0000"
         android:lineHeight="21sp"
         />
 

@@ -40,81 +40,6 @@ public class DataBaseHelper extends SQLiteOpenHelper {
     }
 
 
-//    public boolean addUserProfile(UserProfileModel userProfileModel) {
-//        SQLiteDatabase db = this.getWritableDatabase();
-//        ContentValues cv = new ContentValues();
-//
-//        cv.put(COLUMN_USER_ID, userProfileModel.getUserID());
-//        cv.put(COLUMN_FIRST_NAME, userProfileModel.getFirstName());
-//        cv.put(COLUMN_LAST_NAME, userProfileModel.getLastName());
-//        cv.put(COLUMN_EMAIL, userProfileModel.getEmail());
-//
-//     long insert = db.insert(USER_PROFILE_TABLE, null, cv);
-//
-//     if (insert == -1) {
-//         return false;
-//     } else {
-//         return true;
-//     }
-//    }
-//
-//    public List<UserProfileModel> getAllUserProfiles() {
-//        List<UserProfileModel> returnList = new ArrayList<>();
-//
-//        String queryString = "SELECT * FROM " + USER_PROFILE_TABLE;
-//
-//        SQLiteDatabase db = this.getReadableDatabase();
-//
-//        Cursor cursor = db.rawQuery(queryString, null);
-//
-//        if (cursor.moveToFirst()) {
-//
-//            do {
-//                String userID = cursor.getString(0);
-//                String firstName = cursor.getString(1);
-//                String lastName = cursor.getString(2);
-//                String email = cursor.getString(3);
-//
-//                UserProfileModel userProfile = new UserProfileModel(userID, firstName, lastName, email);
-//                returnList.add(userProfile);
-//
-//            } while (cursor.moveToNext());
-//
-//        } else {
-//
-//        }
-//
-//        cursor.close();
-//        db.close();
-//        return returnList;
-//    }
-//
-//
-//    public UserProfileModel getUserProfile(String USER_ID) {
-//        String queryString = "SELECT * FROM " + USER_PROFILE_TABLE + " WHERE USER_ID = "+ "'" + USER_ID + "'";
-//
-//        SQLiteDatabase db = this.getReadableDatabase();
-//
-//        Cursor cursor = db.rawQuery(queryString, null);
-//
-//        if (cursor.moveToFirst()) {
-//            String userID = cursor.getString(0);
-//            String firstName = cursor.getString(1);
-//            String lastName = cursor.getString(2);
-//            String email = cursor.getString(3);
-//
-//            UserProfileModel userProfile = new UserProfileModel(userID, firstName, lastName, email);
-//            return userProfile;
-//        }
-//
-//        cursor.close();
-//        db.close();
-//
-//        UserProfileModel userProfile = new UserProfileModel();
-//        return userProfile;
-//    }
-
-
     //Create table for a users cards
     public void create_Users_Cards_Table(String userId){
         SQLiteDatabase stegoPayDB = this.getWritableDatabase();
@@ -291,11 +216,6 @@ public class DataBaseHelper extends SQLiteOpenHelper {
         contentValues.put(COLUMN_PROFILE_IMAGE, profileImage);
         stegoPayDB.update(USER_PROFILE_TABLE, contentValues, COLUMN_USER_ID +"=?", new String[]{userId});
     }
-
-
-
-
-
 
 
 

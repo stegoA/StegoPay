@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.util.Base64;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -15,20 +16,9 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.auth0.android.jwt.Claim;
-import com.auth0.android.jwt.JWT;
 
-import java.io.IOException;
-import java.security.cert.CertificateException;
 import java.util.ArrayList;
 import java.util.List;
-
-import javax.net.ssl.HostnameVerifier;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLSession;
-import javax.net.ssl.SSLSocketFactory;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.X509TrustManager;
 
 
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -39,7 +29,6 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 import static com.example.stegopaybeta.StegoPayUtils.BASE_URL;
-import static com.example.stegopaybeta.StegoPayUtils.JWT_TOKEN;
 import static com.example.stegopaybeta.StegoPayUtils.SHARED_PREF_NAME;
 import static com.example.stegopaybeta.StegoPayUtils.getUnsafeOkHttpClient;
 import static com.example.stegopaybeta.StegoPayUtils.getUserIDFromToken;
@@ -54,9 +43,10 @@ public class Home extends AppCompatActivity {
     // Views
     ListView lv_transactions;
     Button addCardButton, viewCardsButton;
-    TextView userGreetingTextView;
+    TextView userGreetingTextView, noTransactionsTextView;
     CircleImageView profileImageView;
     ProgressBar progressBar;
+    ImageView noTransactionsImageView;
 
 
     Retrofit retrofit;
@@ -80,6 +70,8 @@ public class Home extends AppCompatActivity {
         userGreetingTextView = (TextView) findViewById(R.id.userGreetingTextView);
         profileImageView = (CircleImageView) findViewById(R.id.profileImageView);
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
+        noTransactionsImageView = (ImageView) findViewById(R.id.noTransactionsImageView);
+        noTransactionsTextView = (TextView) findViewById(R.id.noTransactionsTextView);
 
         retrofit = new Retrofit.Builder()
                 .baseUrl(BASE_URL)
@@ -90,21 +82,6 @@ public class Home extends AppCompatActivity {
         sharedPreferences = getSharedPreferences(SHARED_PREF_NAME, MODE_PRIVATE);
 
         dataBaseHelper = new DataBaseHelper(Home.this);
-
-        /* IN ON RESUME
-        // Getting the JWT token from shared preferences
-        String tokenFromSharedPrefs = getTokenFromSharedPrefs();
-
-        // Getting the user's ID from the JWT token
-        String userIdFromToken = getUserIDFromToken(tokenFromSharedPrefs);
-
-        // Get user details from SQLite
-        getUserDetails(userIdFromToken);
-
-
-       //  dataBaseHelper.dropTable(userIdFromToken);
-
-        getTransactionsFromServer(tokenFromSharedPrefs);*/
 
 
 
@@ -225,9 +202,19 @@ public class Home extends AppCompatActivity {
 
 
     public void populateActivityListView() {
-        transactionAdapter = new TransactionAdapter(getApplicationContext(), transactionList);
-        lv_transactions.setAdapter(transactionAdapter);
+
+        if (transactionList.isEmpty()) {
+            noTransactionsImageView.setVisibility(View.VISIBLE);
+            noTransactionsTextView.setVisibility(View.VISIBLE);
+        } else {
+            transactionAdapter = new TransactionAdapter(getApplicationContext(), transactionList);
+            lv_transactions.setAdapter(transactionAdapter);
+            noTransactionsImageView.setVisibility(View.GONE);
+            noTransactionsTextView.setVisibility(View.GONE);
+        }
+
         progressBar.setVisibility(View.GONE);
+
     }
 
 

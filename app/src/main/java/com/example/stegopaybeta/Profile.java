@@ -56,18 +56,6 @@ public class Profile extends AppCompatActivity {
 
         sharedPreferences = getSharedPreferences(SHARED_PREF_NAME, MODE_PRIVATE);
 
-        /* IN ON RESUME
-        // Get JWT token from shared preferences
-        String tokenFromSharedPrefs = getTokenFromSharedPrefs();
-
-        // Decode JWT Token to get the user ID
-        String userIDFromToken = getUserIDFromToken(tokenFromSharedPrefs);
-
-        // Get the user's profile from SQLite
-        Cursor cursor = getUserFromSQLite(userIDFromToken);
-
-        // Set user profile details
-        setUserProfileDetails(cursor);*/
 
         editProfile.setOnClickListener(new View.OnClickListener() {
             @Override

@@ -98,9 +98,6 @@ public class LogIn extends AppCompatActivity {
         stegoPayDB = new DataBaseHelper(this);
 
 
-//        stegoPayDB.dropCardsTable("603b78fb8319174c640710f9");
-//        stegoPayDB.dropUserTable();
-
 
         userEmailAddress = (EditText) findViewById(R.id.userEmailEditText);
         userPassword = (EditText) findViewById(R.id.userPasswordEditText);

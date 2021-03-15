@@ -104,16 +104,9 @@
             android:layout_gravity="center"
             android:layout_marginTop="30dp"
             android:background="@drawable/credit_card_view"
-            android:scaleType="centerInside"
+            android:scaleType="centerCrop"
             />
-        <!--
-        <ImageView
-            android:id="@+id/iv_coverImage"
-            android:layout_width="296dp"
-            android:layout_height="160dp"
-            android:layout_gravity="center"
-            android:layout_marginTop="30dp"
-            />-->
+
 
         <RelativeLayout
             android:id="@+id/relativeLayout1"
@@ -122,16 +115,7 @@
             android:layout_marginTop="30dp"
             android:layout_gravity="center">
 
-            <!-- Card type (Debit/Credit)-->
-            <!--
-            <TextView
-                android:id="@+id/creditCardTextView"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text=""
-                android:layout_margin="15dp"
-                android:textColor="@color/white"
-                />-->
+
 
             <!-- Card type (Visa/Mastercard)-->
 
@@ -148,17 +132,7 @@
                 android:background="@drawable/image_overlay"
                 />
 
-            <!-- Credit card number TextView-->
-            <!--
-            <TextView
-                android:id="@+id/creditCardNumberTextView"
-                android:layout_below="@+id/creditCardTextView"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="15dp"
-                android:layout_marginTop="10dp"
-                android:text="[Credit card number]"
-                android:textColor="@color/white" />-->
+
 
             <!-- Expiration date text TextView -->
 
@@ -263,6 +237,28 @@
         android:layout_height="295dp"
         tools:visibility="visible"/>
 
+    <ImageView
+        android:id="@+id/noTransactionsImageView"
+        android:layout_below="@+id/my_activity"
+        android:layout_width="165dp"
+        android:layout_height="165dp"
+        android:src="@drawable/ic_undraw_no_data_illustration"
+        android:layout_centerInParent="true"
+        android:layout_marginTop="50dp"
+        android:visibility="invisible"
+        />
+
+    <TextView
+        android:id="@+id/noTransactionsTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/noTransactionsImageView"
+        android:layout_alignEnd="@+id/noTransactionsImageView"
+        android:text="No transactions to show."
+        android:layout_marginTop="5dp"
+        android:visibility="invisible"
+        />
+
     <ProgressBar
         android:id="@+id/progressBar"
         android:layout_width="200dp"
@@ -277,4 +273,7 @@
         android:textColor="@color/black"
         android:layout_centerInParent="true"
         android:textSize="20sp"/>
+
+
+
 </RelativeLayout>

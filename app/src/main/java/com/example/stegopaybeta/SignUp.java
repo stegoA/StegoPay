@@ -130,10 +130,7 @@ public class SignUp extends AppCompatActivity
             }
         });
 
-        //
-//        stegoPayDB.dropCardsTable("603b78fb8319174c640710f9");
-//        stegoPayDB.dropCardsTable("603e13e8cf2e2a08981a320b");
-//        stegoPayDB.dropUserTable();
+
 
     }
 

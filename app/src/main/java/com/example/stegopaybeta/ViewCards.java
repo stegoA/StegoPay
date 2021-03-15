@@ -51,18 +51,7 @@ public class ViewCards extends AppCompatActivity {
 
         // Instantiating db
         db = new DataBaseHelper(this);
-        /*IN ON RESUME
-        // Getting the JWT token from shared preferences
-        String tokenFromSharedPrefs = getTokenFromSharedPrefs();
 
-        // Getting the user ID from the JWT token
-        String userIDFromToken = getUserIDFromToken(tokenFromSharedPrefs);
-
-        // Getting user cards from SQLite
-        getCardsFromSQLite(userIDFromToken);
-
-        // Populating the cards ListView
-        populateListView();*/
 
         lv_cards.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
