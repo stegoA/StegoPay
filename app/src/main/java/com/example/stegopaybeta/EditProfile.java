@@ -1,6 +1,7 @@
 package com.example.stegopaybeta;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
@@ -18,6 +19,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.gson.Gson;
@@ -147,19 +149,47 @@ public class EditProfile extends AppCompatActivity {
             byte[] byteArray = byteArrayOutputStream.toByteArray();
             String encodedProfilePicture = Base64.encodeToString(byteArray, Base64.DEFAULT);
 
+            //Check size of base64 encoded string
+            int base64stringLength = encodedProfilePicture.length(); //length of base64 encoded string
+            double base64Size = 4*Math.ceil((base64stringLength/3));
+            double base64MB = base64Size/1048576;
 
-            // To store chosen profile picture in SQLite
+            if(base64MB>2){
 
-            //get JWT token from shared preferences (saved in LogIn class)
-            SharedPreferences myPreferences = getSharedPreferences(SHARED_PREF_NAME, Context.MODE_PRIVATE);
-            String token = myPreferences.getString(JWT_TOKEN, "");
+                profilePicture.setImageBitmap(null);
 
-            //decode JWT token to get current logged-in user's ID
-            String userIDFromToken = getUserIDFromToken(token);
+                new AlertDialog.Builder(EditProfile.this)
+                        .setTitle("Image is too large!")
+                        .setMessage("Please choose a smaller image. (Less than 2MB in size)")
+                        .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                selectProfilePicture();
+                            }
+                        })
+                        .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                            }
+                        }).show();
 
-            Cursor cursor = stegoPayDB.getUser(userIDFromToken);
-            cursor.moveToFirst();
-            stegoPayDB.updateUser(userIDFromToken, cursor.getString(1), cursor.getString(2), cursor.getString(3), encodedProfilePicture);
+            } else {
+
+                // To store chosen profile picture in SQLite
+
+                //get JWT token from shared preferences (saved in LogIn class)
+                SharedPreferences myPreferences = getSharedPreferences(SHARED_PREF_NAME, Context.MODE_PRIVATE);
+                String token = myPreferences.getString(JWT_TOKEN, "");
+
+                //decode JWT token to get current logged-in user's ID
+                String userIDFromToken = getUserIDFromToken(token);
+
+                Cursor cursor = stegoPayDB.getUser(userIDFromToken);
+                cursor.moveToFirst();
+                stegoPayDB.updateUser(userIDFromToken, cursor.getString(1), cursor.getString(2), cursor.getString(3), encodedProfilePicture);
+            }
+
+
 
         }
     }
