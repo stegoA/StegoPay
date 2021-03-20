@@ -673,8 +673,12 @@ public class CardDetails extends AppCompatActivity {
                 String details = ccNumber + " " + expiryDate + " " + cvv;
                 String detailsInBinary = StringconvertToBinary(details);
 
+                System.out.println(card.getHashMap_1());
+
                 //Map the updated details
                 String updatedMappingKey = steganography.single_pattern_mapping(detailsInBinary, coverImage, card.getHashMap_1());
+
+                System.out.println("Updated mapping key: " + updatedMappingKey);
 
                 //Set mapping key of the card object
                 card.setMappingKey(updatedMappingKey);
@@ -804,6 +808,7 @@ public class CardDetails extends AppCompatActivity {
             setViews();
             progressBar.setVisibility(View.GONE);
             tv_progress.setVisibility(View.GONE);
+            finish();
         } else {
             Toast.makeText(getApplicationContext(), "Error updating card in SQLite", Toast.LENGTH_LONG).show();
             finish();
