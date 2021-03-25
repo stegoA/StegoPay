@@ -7,6 +7,7 @@ import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.util.Base64;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -112,6 +113,22 @@ public class Home extends AppCompatActivity {
             }
         });
 
+
+        lv_transactions.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+
+                ArrayList<Item> itemsList = transactionList.get(position).getItemsList();
+
+                Intent intent = new Intent(Home.this, TransactionDetails.class);
+                intent.putParcelableArrayListExtra("Transaction", itemsList);
+                intent.putExtra("Vendor Name", transactionList.get(position).getVendor());
+                intent.putExtra("Transaction Date", transactionList.get(position).getDate());
+                intent.putExtra("Currency", transactionList.get(position).getCurrency());
+                startActivity(intent);
+            }
+        });
+
     }
 
     @Override
@@ -131,8 +148,7 @@ public class Home extends AppCompatActivity {
         // Get user details from SQLite
         getUserDetails(userIdFromToken);
 
-
-        //  dataBaseHelper.dropTable(userIdFromToken);
+        //  Get transactions from the server
         getTransactionsFromServer(tokenFromSharedPrefs);
     }
 
@@ -184,7 +200,7 @@ public class Home extends AppCompatActivity {
                 List<Transaction> transactions = response.body();
 
                 for (Transaction transaction: transactions) {
-                    Transaction transactionObj = new Transaction(transaction.getVendor(), transaction.getAmount(), transaction.getCardID(), transaction.getDate(), transaction.getCurrency());
+                    Transaction transactionObj = new Transaction(transaction.getVendor(), transaction.getAmount(), transaction.getCardID(), transaction.getDate(), transaction.getCurrency(), transaction.getItemsList());
                     transactionList.add(transactionObj);
                 }
 

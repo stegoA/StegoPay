@@ -54,6 +54,11 @@ public interface StegoPayApi {
  @DELETE("/deleteCard/{id}")
  Call<JsonObject> deleteCard(@Path("id") String id, @Header("Authorization") String header);
 
+ @GET("/getUserStats/{vendor}")
+ Call<UserStats> getUserStats(@Path("vendor") String vendor, @Header("Authorization") String header);
+
+
+
 
 
 }

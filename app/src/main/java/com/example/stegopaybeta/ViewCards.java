@@ -6,7 +6,9 @@ import android.database.Cursor;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
@@ -32,6 +34,8 @@ public class ViewCards extends AppCompatActivity {
 
     // ListView to display the user's cards
     ListView lv_cards;
+    ImageView noTransactionsImageView;
+    TextView noTransactionsTextView;
 
     ArrayList<Card> allCards;
 
@@ -48,6 +52,8 @@ public class ViewCards extends AppCompatActivity {
 
         // Initializing ListView
         lv_cards = (ListView) findViewById(R.id.cardListView);
+        noTransactionsImageView = (ImageView) findViewById(R.id.noTransactionsImageView);
+        noTransactionsTextView = (TextView) findViewById(R.id.noTransactionsTextView);
 
         // Instantiating db
         db = new DataBaseHelper(this);
@@ -90,9 +96,20 @@ public class ViewCards extends AppCompatActivity {
 
     // Method to populate the cards ListView
     public void populateListView() {
-        cardAdapter = new CardAdapter(this, allCards);
 
+        cardAdapter = new CardAdapter(getApplicationContext(), allCards);
         lv_cards.setAdapter(cardAdapter);
+
+
+        if (allCards.isEmpty()) {
+            noTransactionsImageView.setVisibility(View.VISIBLE);
+            noTransactionsTextView.setVisibility(View.VISIBLE);
+        } else {
+            noTransactionsImageView.setVisibility(View.GONE);
+            noTransactionsTextView.setVisibility(View.GONE);
+        }
+
+
 
     }
 

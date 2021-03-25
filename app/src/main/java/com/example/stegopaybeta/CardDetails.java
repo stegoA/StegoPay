@@ -10,7 +10,6 @@ import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.text.TextWatcher;
-import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
@@ -19,11 +18,11 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.Editable;
-import android.text.TextWatcher;
 import android.util.Base64;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
@@ -32,48 +31,24 @@ import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
-
 import com.auth0.android.jwt.Claim;
 import com.auth0.android.jwt.JWT;
 import com.google.gson.JsonObject;
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
-import java.io.FilterInputStream;
-import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStreamWriter;
-import java.security.cert.CertificateException;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
-
-import javax.net.ssl.HostnameVerifier;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLSession;
-import javax.net.ssl.SSLSocketFactory;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.X509TrustManager;
-
-import okhttp3.OkHttpClient;
-import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
-import static com.example.stegopaybeta.CreditCardUtils.getCardType;
 import static com.example.stegopaybeta.StegoPayUtils.BASE_URL;
 import static com.example.stegopaybeta.StegoPayUtils.JWT_TOKEN;
 import static com.example.stegopaybeta.StegoPayUtils.SHARED_PREF_NAME;
@@ -219,6 +194,22 @@ public class CardDetails extends AppCompatActivity {
 
         //Get card details
         getCardDetails();
+
+        lv_activity.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+
+                ArrayList<Item> itemsList = transactionsList.get(position).getItemsList();
+
+                Intent intent = new Intent(CardDetails.this, TransactionDetails.class);
+                intent.putParcelableArrayListExtra("Transaction", itemsList);
+                intent.putExtra("Vendor Name", transactionsList.get(position).getVendor());
+                intent.putExtra("Transaction Date", transactionsList.get(position).getDate());
+                intent.putExtra("Currency", transactionsList.get(position).getCurrency());
+                startActivity(intent);
+            }
+        });
+
     }
 
     //Get Card Details
@@ -306,6 +297,7 @@ public class CardDetails extends AppCompatActivity {
                 //Get the transactions returned into transactionsList
                 transactionsList = response.body();
 
+
                 //Proceed to setViews
                 setViews();
 
@@ -332,20 +324,16 @@ public class CardDetails extends AppCompatActivity {
         tv_expiryDate.setText(expiryDate);
         iv_coverImage.setBackground(drawable);
 
-        //Initialize transaction adapter which appears on the screen, include only 3 transactions.
+        //Initialize transaction adapter which appears on the screen
         if (transactionsList.isEmpty()) {
             tv_noTransactions.setVisibility(View.VISIBLE);
             iv_noTransactions.setVisibility(View.VISIBLE);
             view_all.setVisibility(View.GONE);
         } else {
             view_all.setVisibility(View.VISIBLE);
-            if (transactionsList.size() >= 3) {
-                transactionAdapter = new TransactionAdapter(this, new ArrayList<Transaction>(transactionsList.subList(0, 3)));
-            }
-            //If the total number of transactions are less than 3, then pass the entire list
-            else {
+
+            // If the total number of transactions are less than 3, then pass the entire list
                 transactionAdapter = new TransactionAdapter(this, transactionsList);
-            }
 
             //Set Adapter for the list view
             lv_activity.setAdapter(transactionAdapter);
@@ -429,34 +417,6 @@ public class CardDetails extends AppCompatActivity {
 
         getUpdatedTransactions_for_pop_up();
 
-//        //Initializing dialog
-//        final Dialog dialog = new Dialog(this);
-//
-//        //Set view of dialog to the custom layout made, which includes a list view
-//        dialog.setContentView(R.layout.custom_dialog_transactions_list);
-//
-//        //Set title
-//        dialog.setTitle("Transactions");
-//
-//
-//        //initializing list view in the custom layout. (View in custom_dialog_transactions_list.xml)
-//        ListView pop_up_list_view = (ListView) dialog.findViewById(R.id.custom_dialog_listView_transactions);
-//
-//        pop_up_list_view.setDivider(new ColorDrawable(Color.DKGRAY));
-//        pop_up_list_view.setDividerHeight(1);
-//
-//
-//        //Initializing adapter for pop up list view
-//        transactionAdapter_popup = new TransactionAdapterPopup(this, transactionsList);
-//
-//        //Setting the adapter
-//        pop_up_list_view.setAdapter(transactionAdapter_popup);
-//
-//        //Specifying dialog width and height
-//        dialog.getWindow().setLayout(WindowManager.LayoutParams.MATCH_PARENT, 1000);
-//
-//        //Display the dialog with the list view
-//        dialog.show();
     }
 
     //On Click of Update Card

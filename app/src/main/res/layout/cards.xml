@@ -98,6 +98,25 @@
 
 
     </FrameLayout>
+    <ImageView
+        android:id="@+id/noTransactionsImageView"
+        android:layout_width="165dp"
+        android:layout_height="165dp"
+        android:src="@drawable/ic_undraw_no_data_illustration"
+        android:layout_centerInParent="true"
+        android:layout_marginTop="100dp"
+        android:visibility="invisible"
+        />
 
+    <TextView
+        android:id="@+id/noTransactionsTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/noTransactionsImageView"
+        android:layout_marginLeft="155dp"
+        android:text="No cards added yet."
+        android:layout_marginTop="8dp"
+        android:visibility="invisible"
+        />
 
 </RelativeLayout>

@@ -1,8 +1,13 @@
 package com.example.stegopaybeta;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import com.google.gson.annotations.SerializedName;
 
-public class Transaction {
+import java.util.ArrayList;
+
+public class Transaction   {
 
     private String vendor;
     private String _id;
@@ -11,6 +16,19 @@ public class Transaction {
     private String cardID;
     private String date;
     private String currency;
+
+    @SerializedName("items")
+    private ArrayList<Item> itemsList;
+
+
+    public Transaction(String vendor, String amount, String cardID, String date, String currency, ArrayList<Item> itemsList) {
+        this.vendor = vendor;
+        this.amount = amount;
+        this.cardID = cardID;
+        this.date = date;
+        this.currency = currency;
+        this.itemsList = itemsList;
+    }
 
     public Transaction(String vendor, String amount, String cardID, String date, String currency) {
         this.vendor = vendor;
@@ -21,7 +39,23 @@ public class Transaction {
     }
 
 
+    protected Transaction(Parcel in) {
+        vendor = in.readString();
+        _id = in.readString();
+        amount = in.readString();
+        cardID = in.readString();
+        date = in.readString();
+        currency = in.readString();
+    }
 
+
+    public ArrayList<Item> getItemsList() {
+        return itemsList;
+    }
+
+    public void setItemsList(ArrayList<Item> itemsList) {
+        this.itemsList = itemsList;
+    }
 
     public String getVendor() {
         return vendor;
@@ -66,4 +100,6 @@ public class Transaction {
     public String getCurrency() { return currency; }
 
     public void setCurrency(String currency) { this.currency = currency; }
+
+
 }
