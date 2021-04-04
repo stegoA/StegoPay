@@ -70,7 +70,6 @@ public class CardDetails extends AppCompatActivity {
 
     private FrameLayout frameLayout1;
     private TextView my_activity;
-    private TextView view_all;
     private View rectangle_6;
 
     private ProgressBar progressBar;
@@ -107,8 +106,6 @@ public class CardDetails extends AppCompatActivity {
     //Adapter to show list of transactions
     TransactionAdapter transactionAdapter;
 
-    //Adapter to show list of transactions in a popup window (On click of view all)
-    TransactionAdapterPopup transactionAdapter_popup;
 
     //To store the cover image
     Bitmap coverImage;
@@ -148,7 +145,6 @@ public class CardDetails extends AppCompatActivity {
 
         frameLayout1 = (FrameLayout) findViewById(R.id.frameLayout1);
         my_activity = (TextView) findViewById(R.id.my_activity);
-        view_all = (TextView) findViewById(R.id.view_all);
         rectangle_6 = findViewById(R.id.rectangle_6);
 
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
@@ -328,10 +324,7 @@ public class CardDetails extends AppCompatActivity {
         if (transactionsList.isEmpty()) {
             tv_noTransactions.setVisibility(View.VISIBLE);
             iv_noTransactions.setVisibility(View.VISIBLE);
-            view_all.setVisibility(View.GONE);
         } else {
-            view_all.setVisibility(View.VISIBLE);
-
             // If the total number of transactions are less than 3, then pass the entire list
                 transactionAdapter = new TransactionAdapter(this, transactionsList);
 
@@ -345,79 +338,7 @@ public class CardDetails extends AppCompatActivity {
 
     }
 
-    public void getUpdatedTransactions_for_pop_up(){
 
-        //Call to get all transactions made by this card
-        Call<ArrayList<Transaction>> call = stegoPayApi.getAllTransactionsOfACard(card.getCardID(), JWTToken);
-
-        //Make request to /getAllTransactionsOfACard/cardId
-        call.enqueue(new Callback<ArrayList<Transaction>>() {
-            @Override
-            public void onResponse(Call<ArrayList<Transaction>> call, Response<ArrayList<Transaction>> response) {
-                if (!response.isSuccessful()) {
-                    System.out.println(response.code());
-                    Toast.makeText(getApplicationContext(), "Unable to connect to the server, Please Try Again Later", Toast.LENGTH_LONG).show();
-                    finish();
-                    return;
-                }
-                //Get the transactions returned into transactionsList
-                transactionsList = response.body();
-
-                //Proceed to setViews
-                setViews();
-
-                showDialog_viewAll();
-
-            }
-
-            @Override
-            public void onFailure(Call<ArrayList<Transaction>> call, Throwable t) {
-                Toast.makeText(getApplicationContext(), "Unable to connect to the server, Please Try Again Later", Toast.LENGTH_LONG).show();
-                finish();
-            }
-        });
-    }
-
-    public void showDialog_viewAll(){
-
-        tv_progress.setVisibility(View.GONE);
-        progressBar.setVisibility(View.GONE);
-
-        //Initializing dialog
-        Dialog dialog = new Dialog(this);
-
-        //Set view of dialog to the custom layout made, which includes a list view
-        dialog.setContentView(R.layout.custom_dialog_transactions_list);
-
-        //initializing list view in the custom layout. (View in custom_dialog_transactions_list.xml)
-        ListView pop_up_list_view = (ListView) dialog.findViewById(R.id.custom_dialog_listView_transactions);
-
-        pop_up_list_view.setDivider(new ColorDrawable(Color.DKGRAY));
-        pop_up_list_view.setDividerHeight(1);
-
-        //Initializing adapter for pop up list view
-        transactionAdapter_popup = new TransactionAdapterPopup(this, transactionsList);
-
-        //Setting the adapter
-        pop_up_list_view.setAdapter(transactionAdapter_popup);
-
-        //Specifying dialog width and height
-        dialog.getWindow().setLayout(WindowManager.LayoutParams.MATCH_PARENT, 1000);
-
-        //Display the dialog with the list view
-        dialog.show();
-    }
-
-    //On click of View all transactions
-    public void viewAllTransactions(View v) {
-
-        tv_progress.setText("");
-        tv_progress.setVisibility(View.VISIBLE);
-        progressBar.setVisibility(View.VISIBLE);
-
-        getUpdatedTransactions_for_pop_up();
-
-    }
 
     //On Click of Update Card
     public void updateCard(View v) {

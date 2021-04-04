@@ -190,24 +190,6 @@
         />
 
 
-    <!-- View all TextView -->
-    <TextView
-        android:id="@+id/view_all"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_toRightOf="@+id/my_activity"
-        android:layout_below="@+id/frameLayout1"
-        android:text="@string/view_all"
-        android:layout_marginTop="30dp"
-        android:layout_marginLeft="200dp"
-        android:textAppearance="@style/view_all"
-        android:visibility="invisible"
-        tools:visibility="visible"
-        android:clickable="true"
-        android:onClick="viewAllTransactions"
-        />
-
-
     <!-- Transactions view -->
 
     <View
